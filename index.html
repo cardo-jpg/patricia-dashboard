@@ -58,7 +58,7 @@
     .chart-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 22px;}
     .chart-box-ttl{font-size:13px;font-weight:700;margin-bottom:2px;}
     .chart-box-sub{font-size:11px;color:var(--sub);margin-bottom:16px;}
-    .cw{position:relative;} .h220{height:220px;} .h260{height:260px;} .h300{height:300px;}
+    .cw{position:relative;} .h220{height:220px;} .h260{height:260px;} .h280{height:280px;} .h300{height:300px;}
 
     /* DIVIDER */
     .divider{border:none;border-top:1px solid var(--border);margin:8px 0 20px;}
@@ -81,6 +81,11 @@
     .pill-v{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(0,229,160,.1);color:var(--green);}
     .pill-c{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(167,139,250,.1);color:var(--purple);}
     .pill-i{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(0,198,255,.1);color:var(--cyan);}
+    /* Month filter */
+    .mf-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+    .mf-btn{padding:5px 13px;font-size:11px;font-weight:600;color:var(--sub);background:var(--card);border:1px solid var(--border);border-radius:20px;cursor:pointer;transition:all .15s;}
+    .mf-btn:hover{color:var(--text);border-color:var(--purple);}
+    .mf-btn.active{background:rgba(167,139,250,.15);color:var(--purple);border-color:var(--purple);}
   </style>
 </head>
 <body>
@@ -105,32 +110,27 @@
 <div id="panel-imp" class="tab-panel active">
 <div class="container">
 
-  <p class="sec-title">Campanhas de Seguidores · Planilha Manual</p>
+  <p class="sec-title">Resultados da Campanha · Acompanhamento Diário</p>
   <div class="kpi-row">
-    <div class="kpi k-orange"><p class="kpi-lbl">Investimento Total</p><p class="kpi-val co" id="i-invest">—</p><p class="kpi-note" id="i-period">total das campanhas</p></div>
-    <div class="kpi k-purple"><p class="kpi-lbl">Seguidores Ganhos</p><p class="kpi-val cv" id="i-seg">—</p><p class="kpi-note">acumulado dos posts ativos</p></div>
-    <div class="kpi k-cyan"><p class="kpi-lbl">CPS Médio</p><p class="kpi-val cc" id="i-cps">—</p><p class="kpi-note">custo por seguidor</p></div>
+    <div class="kpi k-orange"><p class="kpi-lbl">Investimento</p><p class="kpi-val co" id="d-invest">—</p><p class="kpi-note" id="d-period">período selecionado</p></div>
+    <div class="kpi k-purple"><p class="kpi-lbl">Novos Seguidores</p><p class="kpi-val cv" id="d-seg">—</p><p class="kpi-note">total do período</p></div>
+    <div class="kpi k-cyan"><p class="kpi-lbl">CPS Médio</p><p class="kpi-val cc" id="d-cps">—</p><p class="kpi-note">custo por seguidor</p></div>
+    <div class="kpi k-yellow"><p class="kpi-lbl">Cliques</p><p class="kpi-val cy" id="d-cliques">—</p><p class="kpi-note" id="d-cpc-note">CPC —</p></div>
+    <div class="kpi k-green"><p class="kpi-lbl">Impressões</p><p class="kpi-val cg" id="d-imp">—</p><p class="kpi-note" id="d-cpm-note">CPM —</p></div>
   </div>
 
-  <p class="sec-title">Anúncios · Meta Ads (Stract)</p>
-  <div class="kpi-row">
-    <div class="kpi k-blue"><p class="kpi-lbl">Alcance</p><p class="kpi-val cb" id="i-alcance">—</p><p class="kpi-note">pessoas únicas</p></div>
-    <div class="kpi k-yellow"><p class="kpi-lbl">Cliques no Link</p><p class="kpi-val cy" id="i-cliques">—</p><p class="kpi-note" id="i-ctr">CTR —</p></div>
-    <div class="kpi k-green"><p class="kpi-lbl">Views 50%</p><p class="kpi-val cg" id="i-v50">—</p><p class="kpi-note" id="i-v50c">—</p></div>
-    <div class="kpi k-pink"><p class="kpi-lbl">Views 95%</p><p class="kpi-val cp" id="i-v95">—</p><p class="kpi-note" id="i-v95c">—</p></div>
-    <div class="kpi k-yellow"><p class="kpi-lbl">CPM</p><p class="kpi-val cy" id="i-cpm">—</p><p class="kpi-note">custo/mil impressões</p></div>
-  </div>
+  <div id="month-filter-bar" class="mf-bar"></div>
 
   <div class="chart-row">
     <div class="chart-box">
-      <p class="chart-box-ttl">Seguidores Ganhos por Post</p>
-      <p class="chart-box-sub">Comparativo entre campanhas ativas · dados da planilha manual</p>
-      <div class="cw h260"><canvas id="i-chart1"></canvas></div>
+      <p class="chart-box-ttl">Novos Seguidores por Dia</p>
+      <p class="chart-box-sub">Barras = seguidores captados · Linha = custo por seguidor (CPS)</p>
+      <div class="cw h280"><canvas id="d-chart1"></canvas></div>
     </div>
     <div class="chart-box">
-      <p class="chart-box-ttl">Anúncios · Investimento Semanal</p>
-      <p class="chart-box-sub">Barras = investimento (Meta Ads) · Linha = custo por view 50%</p>
-      <div class="cw h260"><canvas id="i-chart2"></canvas></div>
+      <p class="chart-box-ttl">Investimento Diário</p>
+      <p class="chart-box-sub">Barras = investimento · Linha = impressões</p>
+      <div class="cw h280"><canvas id="d-chart2"></canvas></div>
     </div>
   </div>
 
@@ -156,22 +156,22 @@
 
   <div class="tbl-box">
     <div class="tbl-head" style="justify-content:space-between">
-      <span class="tbl-head-title">Desempenho dos Anúncios · Meta Ads</span>
-      <span style="font-size:10px;color:var(--sub);font-weight:500">Dados Stract</span>
+      <span class="tbl-head-title">Detalhamento por Dia</span>
+      <span style="font-size:10px;color:var(--sub);font-weight:500">planilha manual · ordem decrescente</span>
     </div>
     <div class="tbl-scroll">
       <table>
         <thead><tr>
-          <th>Campanha</th>
+          <th>Data</th>
+          <th class="tr">Novos Seg.</th>
           <th class="tr">Investimento</th>
-          <th class="tr">Alcance</th>
+          <th class="tr">CPS</th>
           <th class="tr">Cliques</th>
-          <th class="tr">Views 50%</th>
-          <th class="tr">Views 95%</th>
-          <th class="tr">Custo 50%</th>
-          <th class="tr">Hook Rate</th>
+          <th class="tr">CPC</th>
+          <th class="tr">Impressões</th>
+          <th class="tr">CPM</th>
         </tr></thead>
-        <tbody id="ad-tbody"></tbody>
+        <tbody id="d-tbody"></tbody>
       </table>
     </div>
   </div>
@@ -228,8 +228,10 @@
 </div>
 
 <script>
-const SHEET_ID = '1U0-RxvDoIbCI7UNC76hXsRfryNV-Y3GX0x-44KxdVFk';
-const GVT = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+const SHEET_ID      = '1U0-RxvDoIbCI7UNC76hXsRfryNV-Y3GX0x-44KxdVFk';
+const DAILY_SHEET_ID= '1FqaWfL76VcYKeYGVbqO7qwi3EUqwj7YaLEL23Dlqgd8';
+const GVT  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+const GVT2 = `https://docs.google.com/spreadsheets/d/${DAILY_SHEET_ID}/gviz/tq?tqx=out:csv`;
 const C = {cyan:'#00c6ff',green:'#00e5a0',yellow:'#ffd166',red:'#ff6b6b',purple:'#a78bfa',orange:'#f97316',pink:'#f472b6',blue:'#60a5fa',grid:'rgba(30,48,69,0.7)'};
 const PAL = [C.purple,C.cyan,C.green,C.orange,C.pink,C.yellow,C.blue,'#818cf8','#34d399','#fb923c'];
 const ch={};
@@ -237,10 +239,10 @@ const R = id => document.getElementById(id);
 const fmtN = n => n>=1e6?(n/1e6).toFixed(1)+'M':n>=1000?(n/1000).toFixed(1)+'k':String(n||0);
 const fmtR = v => 'R$ '+(+v||0).toFixed(2).replace('.',',');
 const fmtPct = v => (+v||0).toFixed(1).replace('.',',')+'%';
-const money = s => parseFloat((s||'').replace('R$ ','').replace(',','.').replace(/\s/g,''))||0;
-const num = s => parseFloat((s||'').replace(',','.'))||0;
-const N = s => parseInt(s)||0;
+const money = s => parseFloat((s||'').replace(/R\$\s?/g,'').replace(',','.').replace(/\s/g,'').replace(/-$/,''))||0;
+const N = s => parseInt((s||'').replace(/\./g,''))||0;
 const mkChart=(id,cfg)=>{if(ch[id])ch[id].destroy();ch[id]=new Chart(R(id),cfg);};
+
 function switchTab(n,b){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
@@ -255,6 +257,19 @@ function parseCSV(txt){
     return hs.reduce((o,h,i)=>{o[h]=v[i]||'';return o;},{});
   });
 }
+
+// Flexivel — resolve acentos e variações de nome de coluna
+function col(row,...names){
+  const norm=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+  for(const n of names){
+    if(row[n]!==undefined&&row[n]!=='')return row[n];
+    const nk=norm(n);
+    const found=Object.entries(row).find(([k])=>norm(k)===nk);
+    if(found&&found[1]!=='')return found[1];
+  }
+  return'';
+}
+
 const tipoLabel=t=>t==='VIDEO'?'Vídeo':t==='CAROUSEL_ALBUM'?'Carrossel':t==='IMAGE'?'Imagem':t||'Post';
 const tipoPill=t=>t==='VIDEO'?'pill-v':t==='CAROUSEL_ALBUM'?'pill-c':'pill-i';
 const fmtDatePt=d=>{if(!d)return'—';const[y,m,day]=d.split('-');const ms=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];return`${day} ${ms[+m-1]}`;}
@@ -262,118 +277,143 @@ const postName=s=>{
   const clean=s.replace(/^(Instagram post:|Post do Instagram:|Reel do Instagram:|REELS?|CARROSSEL?)\s*[-–:]?\s*/i,'').trim();
   return clean.length>55?clean.substring(0,55)+'…':clean||s.substring(0,55);
 }
+const MS=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 
-// ── Agrupar por semana ────────────────────────────────────────
-function weekKey(dateStr){
-  const d=new Date(dateStr);
-  const day=d.getDay();
-  const mon=new Date(d); mon.setDate(d.getDate()-(day===0?6:day-1));
-  return mon.toISOString().substring(0,10);
+// ── Parse data "DD/MM" do daily sheet ────────────────────────
+function parseDailyDate(ddmm){
+  if(!ddmm||!ddmm.includes('/'))return null;
+  const[ds,ms]=ddmm.trim().split('/');
+  const d=parseInt(ds),m=parseInt(ms);
+  if(!d||!m||m<1||m>12)return null;
+  const year=m>=11?2025:2026;
+  const key=`${year}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  const mLabel=MS[m-1]+'/'+String(year).slice(2);
+  const mKey=`${year}-${String(m).padStart(2,'0')}`;
+  return{year,month:m,day:d,key,label:ddmm,mLabel,mKey};
 }
-function weekLabel(k){const[y,m,d]=k.split('-');const ms=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];return`${+d} ${ms[+m-1]}`;}
+
+// ── DAILY CHARTS (chamado ao mudar filtro de mês) ─────────────
+let _allDailyRows=[];
+function renderDailyView(filterMKey){
+  const rows=filterMKey==='all'
+    ?_allDailyRows
+    :_allDailyRows.filter(r=>r._pd&&r._pd.mKey===filterMKey);
+
+  const totInv =rows.reduce((a,r)=>a+r._inv,0);
+  const totSeg =rows.reduce((a,r)=>a+r._seg,0);
+  const totClk =rows.reduce((a,r)=>a+r._clk,0);
+  const totImp =rows.reduce((a,r)=>a+r._imp,0);
+  const avgCPS =totSeg>0?totInv/totSeg:0;
+  const avgCPC =totClk>0?totInv/totClk:0;
+  const avgCPM =totImp>0?totInv/totImp*1000:0;
+
+  R('d-invest').textContent=fmtR(totInv);
+  R('d-seg').textContent=totSeg>0?'+'+fmtN(totSeg):'—';
+  R('d-cps').textContent=avgCPS>0?fmtR(avgCPS):'—';
+  R('d-cliques').textContent=fmtN(totClk);
+  R('d-cpc-note').textContent=avgCPC>0?'CPC '+fmtR(avgCPC):'CPC —';
+  R('d-imp').textContent=fmtN(totImp);
+  R('d-cpm-note').textContent=avgCPM>0?'CPM '+fmtR(avgCPM):'CPM —';
+
+  const labels=rows.map(r=>r._pd?r._pd.label:'');
+  const segArr=rows.map(r=>r._seg||null);
+  const cpsArr=rows.map(r=>r._cps>0?+r._cps.toFixed(2):null);
+  const invArr=rows.map(r=>r._inv>0?+r._inv.toFixed(2):null);
+  const impArr=rows.map(r=>r._imp>0?r._imp:null);
+
+  mkChart('d-chart1',{type:'bar',data:{labels,datasets:[
+    {type:'bar',label:'Novos Seguidores',data:segArr,backgroundColor:'rgba(167,139,250,.4)',borderColor:C.purple,borderWidth:1,borderRadius:4,yAxisID:'yA'},
+    {type:'line',label:'CPS (R$)',data:cpsArr,borderColor:C.cyan,backgroundColor:'rgba(0,198,255,.06)',pointBackgroundColor:C.cyan,pointRadius:3,tension:.35,fill:false,yAxisID:'yB',spanGaps:true},
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:10,font:{size:11}}}},
+    scales:{
+      x:{grid:{color:C.grid},ticks:{maxRotation:60,font:{size:9}}},
+      yA:{position:'left',grid:{color:C.grid},title:{display:true,text:'Seguidores',color:C.purple,font:{size:10}}},
+      yB:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>`R$${v}`,color:C.cyan},title:{display:true,text:'CPS',color:C.cyan,font:{size:10}}},
+    }
+  }});
+
+  mkChart('d-chart2',{type:'bar',data:{labels,datasets:[
+    {type:'bar',label:'Investimento (R$)',data:invArr,backgroundColor:'rgba(0,229,160,.35)',borderColor:C.green,borderWidth:1,borderRadius:4,yAxisID:'yA'},
+    {type:'line',label:'Impressões',data:impArr,borderColor:C.orange,backgroundColor:'rgba(249,115,22,.06)',pointBackgroundColor:C.orange,pointRadius:3,tension:.35,fill:false,yAxisID:'yB',spanGaps:true},
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,padding:10,font:{size:11}}}},
+    scales:{
+      x:{grid:{color:C.grid},ticks:{maxRotation:60,font:{size:9}}},
+      yA:{position:'left',grid:{color:C.grid},ticks:{callback:v=>`R$${v}`}},
+      yB:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>fmtN(v),color:C.orange}},
+    }
+  }});
+
+  // Tabela diária (ordem decrescente)
+  R('d-tbody').innerHTML=[...rows].reverse().map(r=>`<tr>
+    <td style="white-space:nowrap;font-weight:600;color:var(--sub)">${r._pd?r._pd.label:'—'}</td>
+    <td class="tr" style="color:var(--purple)">${r._seg>0?'+'+r._seg:'—'}</td>
+    <td class="tr" style="color:var(--orange)">${r._inv>0?fmtR(r._inv):'—'}</td>
+    <td class="tr" style="color:var(--cyan)">${r._cps>0?fmtR(r._cps):'—'}</td>
+    <td class="tr">${r._clk>0?fmtN(r._clk):'—'}</td>
+    <td class="tr" style="color:var(--sub)">${r._cpc>0?fmtR(r._cpc):'—'}</td>
+    <td class="tr">${r._imp>0?fmtN(r._imp):'—'}</td>
+    <td class="tr" style="color:var(--sub)">${r._cpm>0?fmtR(r._cpm):'—'}</td>
+  </tr>`).join('');
+}
+
+window.setDailyMonth=function(mKey,btn){
+  document.querySelectorAll('.mf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDailyView(mKey);
+};
 
 // ── IMPULSIONADOS ─────────────────────────────────────────────
-function renderImp(adRows, segRows){
-  // ── Seguidores (planilha manual) ──────────────────────────────
+function renderImp(dailyRows, segRows){
+  // Processar daily rows
+  _allDailyRows=dailyRows.map(r=>{
+    const pd=parseDailyDate(col(r,'DATA','Data'));
+    const seg=parseInt(col(r,'Novos Seguidores'))||0;
+    const inv=money(col(r,'Investimento diário','Investimento diario','Investimento'));
+    const cps=money(col(r,'Custo por novos seguidores'));
+    const clk=parseInt(col(r,'Cliques'))||0;
+    const cpc=money(col(r,'CPC'));
+    const imp=parseInt(col(r,'Impressões','Impressoes').replace(/\./g,''))||0;
+    const cpm=money(col(r,'CPM'));
+    return{...r,_pd:pd,_seg:seg,_inv:inv,_cps:cps,_clk:clk,_cpc:cpc,_imp:imp,_cpm:cpm};
+  }).filter(r=>r._pd).sort((a,b)=>a._pd.key.localeCompare(b._pd.key));
+
+  // Montar filtro de meses com dados reais
+  const mKeys=[...new Set(_allDailyRows.filter(r=>r._inv>0||r._seg>0).map(r=>r._pd.mKey))].sort();
+  const bar=R('month-filter-bar');
+  bar.innerHTML=`<button class="mf-btn" onclick="setDailyMonth('all',this)">Tudo</button>`+
+    mKeys.map(mk=>{
+      const[y,m]=mk.split('-');
+      const label=MS[+m-1]+'/'+String(+y).slice(2);
+      return`<button class="mf-btn" onclick="setDailyMonth('${mk}',this)">${label}</button>`;
+    }).join('');
+  // Ativar último mês com dados
+  const lastMKey=mKeys[mKeys.length-1]||'all';
+  const lastBtn=bar.querySelector(`[onclick*="${lastMKey}"]`)||bar.querySelector('.mf-btn');
+  if(lastBtn)lastBtn.classList.add('active');
+  renderDailyView(lastMKey||'all');
+
+  // Tabela de posts (planilha manual seguidores)
   const segByKey={};
   segRows.filter(r=>r['Data']&&r['Seguidores (Saldo)']).forEach(r=>{
     const k=r['Link da publicação']||r['Nome do anúncio']||'?';
     if(!segByKey[k])segByKey[k]=[];
     segByKey[k].push(r);
   });
-
   const segPostList=Object.entries(segByKey).map(([key,list])=>{
     list.sort((a,b)=>new Date(a['Data'])-new Date(b['Data']));
-    const first=list[0], lat=list[list.length-1], prev=list.length>1?list[list.length-2]:null;
+    const first=list[0],lat=list[list.length-1],prev=list.length>1?list[list.length-2]:null;
     const nome=lat['Nome do anúncio']||key;
     const link=lat['Link da publicação']||'';
     const saldo=N(lat['Seguidores (Saldo)']);
     const saldoFirst=N(first['Seguidores (Saldo)']);
-    const ganho=saldo-saldoFirst;               // total desde início do rastreamento
-    const ganhoUlt=saldo-(prev?N(prev['Seguidores (Saldo)']):saldoFirst);
-    const inv=money(lat['Investimento']);         // investimento total acumulado
+    const ganho=saldo-saldoFirst;
+    const inv=money(lat['Investimento']);
     const invFirst=money(first['Investimento']);
-    const invUlt=inv-(prev?money(prev['Investimento']):invFirst);
-    const cps=ganho>0?(inv-invFirst)/ganho:0;   // CPS total
-    return{nome,link,saldo,ganho,ganhoUlt,inv,invUlt,cps,list};
+    const cps=ganho>0?(inv-invFirst)/ganho:0;
+    return{nome,link,saldo,ganho,inv,cps};
   });
-
-  const totInvSeg=segPostList.reduce((a,p)=>a+p.inv,0);
-  const totGanhoSeg=segPostList.reduce((a,p)=>a+p.ganho,0);
-  const totCPS=totGanhoSeg>0?segPostList.reduce((a,p)=>a+(p.inv-money(p.list[0]['Investimento'])),0)/totGanhoSeg:0;
-
-  // ── Meta Ads (Stract) ─────────────────────────────────────────
-  const adTot=adRows.reduce((a,r)=>({
-    invest:a.invest+money(r['Investimento']), alcance:a.alcance+N(r['Alcance']),
-    imp:a.imp+N(r['Impressões']), cliques:a.cliques+N(r['Cliques no link']),
-    v50:a.v50+num(r['Views 50% do vídeo']), v95:a.v95+num(r['Views 95% do vídeo']),
-  }),{invest:0,alcance:0,imp:0,cliques:0,v50:0,v95:0});
-
-  const ctr=adTot.imp>0?adTot.cliques/adTot.imp*100:0;
-  const cpm=adTot.imp>0?adTot.invest/adTot.imp*1000:0;
-  const cv50=adTot.v50>0?adTot.invest/adTot.v50:0;
-  const cv95=adTot.v95>0?adTot.invest/adTot.v95:0;
-
-  // KPIs - Seção 1: Seguidores (manual)
-  R('i-invest').textContent=fmtR(totInvSeg);
-  R('i-seg').textContent='+'+fmtN(totGanhoSeg);
-  R('i-cps').textContent=totCPS>0?fmtR(totCPS):'—';
-  // KPIs - Seção 2: Meta Ads (Stract)
-  R('i-alcance').textContent=fmtN(adTot.alcance);
-  R('i-cliques').textContent=fmtN(adTot.cliques);
-  R('i-ctr').textContent='CTR '+fmtPct(ctr);
-  R('i-v50').textContent=fmtN(Math.round(adTot.v50));
-  R('i-v50c').textContent=cv50>0?'Custo '+fmtR(cv50):'—';
-  R('i-v95').textContent=fmtN(Math.round(adTot.v95));
-  R('i-v95c').textContent=cv95>0?'Custo '+fmtR(cv95):'—';
-  R('i-cpm').textContent=fmtR(cpm);
-
-  // Gráfico 1: Seguidores ganhos por post (barras horizontais)
-  const segLabels=segPostList.map(p=>postName(p.nome));
-  const segGanhos=segPostList.map(p=>p.ganho);
-  const segCPS=segPostList.map(p=>+p.cps.toFixed(2));
-  mkChart('i-chart1',{
-    type:'bar',
-    data:{labels:segLabels,datasets:[
-      {type:'bar',label:'Seguidores Ganhos',data:segGanhos,backgroundColor:segPostList.map((_,i)=>i%2===0?'rgba(167,139,250,.4)':'rgba(0,229,160,.4)'),borderColor:segPostList.map((_,i)=>i%2===0?C.purple:C.green),borderWidth:1.5,borderRadius:6,yAxisID:'yA'},
-      {type:'line',label:'CPS (R$)',data:segCPS,borderColor:C.yellow,backgroundColor:'rgba(255,209,102,.06)',pointBackgroundColor:C.yellow,pointRadius:6,tension:.3,fill:false,yAxisID:'yB',spanGaps:true},
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12}}},
-      scales:{
-        x:{grid:{color:C.grid},ticks:{maxRotation:20}},
-        yA:{position:'left',grid:{color:C.grid},title:{display:true,text:'Seguidores',color:C.purple,font:{size:10}}},
-        yB:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>`R$${v}`,color:C.yellow},title:{display:true,text:'CPS',color:C.yellow,font:{size:10}}},
-      }
-    }
-  });
-
-  // Gráfico 2: Meta Ads - Investimento semanal + Custo View 50%
-  const weekMap={};
-  adRows.forEach(r=>{
-    const wk=weekKey(r['Data']);
-    if(!weekMap[wk])weekMap[wk]={invest:0,v50:0};
-    weekMap[wk].invest+=money(r['Investimento']);
-    weekMap[wk].v50+=num(r['Views 50% do vídeo']);
-  });
-  const wks=Object.keys(weekMap).sort();
-  mkChart('i-chart2',{
-    type:'bar',
-    data:{labels:wks.map(weekLabel),datasets:[
-      {type:'bar',label:'Investimento (R$)',data:wks.map(k=>+weekMap[k].invest.toFixed(2)),backgroundColor:'rgba(96,165,250,.35)',borderColor:C.blue,borderWidth:1.5,borderRadius:5,yAxisID:'yA'},
-      {type:'line',label:'Custo 50% (R$)',data:wks.map(k=>weekMap[k].v50>0?+(weekMap[k].invest/weekMap[k].v50).toFixed(2):null),borderColor:C.orange,backgroundColor:'rgba(249,115,22,.06)',pointBackgroundColor:C.orange,pointRadius:5,tension:.4,fill:false,yAxisID:'yB',spanGaps:true},
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12}}},
-      scales:{
-        x:{grid:{color:C.grid}},
-        yA:{position:'left',grid:{color:C.grid},ticks:{callback:v=>`R$${v}`}},
-        yB:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>`R$${v}`,color:C.orange}},
-      }
-    }
-  });
-
-  // Tabela 1: Seguidores (planilha manual) - apenas posts ativos
   R('s-tbody').innerHTML=segPostList.map(p=>`<tr>
     <td class="tnm" title="${p.nome}">${postName(p.nome)}</td>
     <td class="tr"><strong style="color:var(--purple)">${fmtN(p.saldo)}</strong></td>
@@ -382,31 +422,6 @@ function renderImp(adRows, segRows){
     <td class="tr" style="color:var(--cyan)">${p.cps>0?fmtR(p.cps):'—'}</td>
     <td>${p.link?`<a href="${p.link}" target="_blank" class="lnk">🔗 Ver post</a>`:'—'}</td>
   </tr>`).join('');
-
-  // Tabela 2: Meta Ads - todas as campanhas (Stract)
-  const adByCamp={};
-  adRows.forEach(r=>{
-    const k=(r['Nome do post']||r['Campanha']||'Campanha').substring(0,120);
-    if(!adByCamp[k])adByCamp[k]={nome:k,invest:0,alcance:0,imp:0,cliques:0,v50:0,v95:0,v15:0};
-    const p=adByCamp[k];
-    p.invest+=money(r['Investimento']); p.alcance+=N(r['Alcance']); p.imp+=N(r['Impressões']);
-    p.cliques+=N(r['Cliques no link']); p.v50+=num(r['Views 50% do vídeo']); p.v95+=num(r['Views 95% do vídeo']);
-    p.v15+=num(r['View 15%']);
-  });
-  R('ad-tbody').innerHTML=Object.values(adByCamp).sort((a,b)=>b.invest-a.invest).map(p=>{
-    const cv50p=p.v50>0?p.invest/p.v50:null;
-    const hookRate=p.imp>0&&p.v15>0?p.v15/p.imp*100:null;
-    return`<tr>
-      <td class="tnm" title="${p.nome}">${postName(p.nome)}</td>
-      <td class="tr" style="color:var(--orange)">${fmtR(p.invest)}</td>
-      <td class="tr">${fmtN(p.alcance)}</td>
-      <td class="tr">${fmtN(p.cliques)}</td>
-      <td class="tr" style="color:var(--cyan)">${p.v50>0?fmtN(Math.round(p.v50)):'—'}</td>
-      <td class="tr" style="color:var(--purple)">${p.v95>0?fmtN(Math.round(p.v95)):'—'}</td>
-      <td class="tr">${cv50p?fmtR(cv50p):'—'}</td>
-      <td class="tr">${hookRate?fmtPct(hookRate):'—'}</td>
-    </tr>`;
-  }).join('');
 }
 
 // ── ORGÂNICO ──────────────────────────────────────────────────
@@ -474,23 +489,23 @@ function renderOrg(rows){
 async function load(){
   const ts=Date.now();
   try{
-    const[sTxt,iTxt,oTxt]=await Promise.all([
-      fetch(`${GVT}&gid=0&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
-      fetch(`${GVT}&gid=305872251&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
-      fetch(`${GVT}&gid=1387861195&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
+    const[dTxt,sTxt,oTxt]=await Promise.all([
+      fetch(`${GVT2}&gid=0&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),        // daily sheet
+      fetch(`${GVT}&gid=0&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),          // 2-post seguidores
+      fetch(`${GVT}&gid=1387861195&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()), // orgânico
     ]);
-    const adRows=parseCSV(iTxt).filter(r=>r['Data']);
-    const segRows=parseCSV(sTxt).filter(r=>r['Data']);
-    const orgRows=parseCSV(oTxt).filter(r=>r['Data']);
+    const dailyRows=parseCSV(dTxt);
+    const segRows  =parseCSV(sTxt).filter(r=>r['Data']);
+    const orgRows  =parseCSV(oTxt).filter(r=>r['Data']);
 
-    renderImp(adRows,segRows);
+    renderImp(dailyRows,segRows);
     renderOrg(orgRows);
 
-    const dates=adRows.map(r=>r['Data']).sort();
-    const dMin=fmtDatePt(dates[0]), dMax=fmtDatePt(dates[dates.length-1]);
+    const actives=_allDailyRows.filter(r=>r._inv>0||r._seg>0);
+    const dMin=actives[0]?._pd?.label||'';
+    const dMax=actives[actives.length-1]?._pd?.label||'';
     const hora=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
     R('h-sub').textContent=`${dMin} – ${dMax} · Atualizado às ${hora}`;
-    R('i-period').textContent=`${dMin} – ${dMax}`;
     R('o-period').textContent=`${orgRows.length} posts publicados`;
   }catch(e){
     R('h-sub').textContent='⚠ Erro: '+e.message;
