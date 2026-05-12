@@ -105,71 +105,73 @@
 <div id="panel-imp" class="tab-panel active">
 <div class="container">
 
-  <p class="sec-title">Visão Geral · Impulsionamentos e Seguidores</p>
-  <div class="kpi-row" id="imp-kpis">
-    <div class="kpi k-orange"><p class="kpi-lbl">Investimento</p><p class="kpi-val co" id="i-invest">—</p><p class="kpi-note" id="i-period">—</p></div>
-    <div class="kpi k-purple"><p class="kpi-lbl">Seguidores Ganhos</p><p class="kpi-val cv" id="i-seg">—</p><p class="kpi-note">acumulado dos posts</p></div>
-    <div class="kpi k-cyan"><p class="kpi-lbl">CPS</p><p class="kpi-val cc" id="i-cps">—</p><p class="kpi-note">custo por seguidor</p></div>
+  <p class="sec-title">Campanhas de Seguidores · Planilha Manual</p>
+  <div class="kpi-row">
+    <div class="kpi k-orange"><p class="kpi-lbl">Investimento Total</p><p class="kpi-val co" id="i-invest">—</p><p class="kpi-note" id="i-period">total das campanhas</p></div>
+    <div class="kpi k-purple"><p class="kpi-lbl">Seguidores Ganhos</p><p class="kpi-val cv" id="i-seg">—</p><p class="kpi-note">acumulado dos posts ativos</p></div>
+    <div class="kpi k-cyan"><p class="kpi-lbl">CPS Médio</p><p class="kpi-val cc" id="i-cps">—</p><p class="kpi-note">custo por seguidor</p></div>
+  </div>
+
+  <p class="sec-title">Anúncios · Meta Ads (Stract)</p>
+  <div class="kpi-row">
     <div class="kpi k-blue"><p class="kpi-lbl">Alcance</p><p class="kpi-val cb" id="i-alcance">—</p><p class="kpi-note">pessoas únicas</p></div>
     <div class="kpi k-yellow"><p class="kpi-lbl">Cliques no Link</p><p class="kpi-val cy" id="i-cliques">—</p><p class="kpi-note" id="i-ctr">CTR —</p></div>
     <div class="kpi k-green"><p class="kpi-lbl">Views 50%</p><p class="kpi-val cg" id="i-v50">—</p><p class="kpi-note" id="i-v50c">—</p></div>
     <div class="kpi k-pink"><p class="kpi-lbl">Views 95%</p><p class="kpi-val cp" id="i-v95">—</p><p class="kpi-note" id="i-v95c">—</p></div>
-    <div class="kpi k-yellow"><p class="kpi-lbl">CPM</p><p class="kpi-val cy" id="i-cpm">—</p><p class="kpi-note">custo/mil imp.</p></div>
+    <div class="kpi k-yellow"><p class="kpi-lbl">CPM</p><p class="kpi-val cy" id="i-cpm">—</p><p class="kpi-note">custo/mil impressões</p></div>
   </div>
 
   <div class="chart-row">
     <div class="chart-box">
-      <p class="chart-box-ttl">Investimento semanal · Custo por View 50%</p>
-      <p class="chart-box-sub">Barras = investimento · Linha = custo por visualização</p>
+      <p class="chart-box-ttl">Seguidores Ganhos por Post</p>
+      <p class="chart-box-sub">Comparativo entre campanhas ativas · dados da planilha manual</p>
       <div class="cw h260"><canvas id="i-chart1"></canvas></div>
     </div>
     <div class="chart-box">
-      <p class="chart-box-ttl">Seguidores Ganhos · CPS</p>
-      <p class="chart-box-sub">Barras = seguidores por semana · Linha = CPS</p>
+      <p class="chart-box-ttl">Anúncios · Investimento Semanal</p>
+      <p class="chart-box-sub">Barras = investimento (Meta Ads) · Linha = custo por view 50%</p>
       <div class="cw h260"><canvas id="i-chart2"></canvas></div>
     </div>
   </div>
 
   <div class="tbl-box">
-    <div class="tbl-head">
-      <span class="tbl-head-title">Detalhamento por Post · Impulsionamentos</span>
+    <div class="tbl-head" style="justify-content:space-between">
+      <span class="tbl-head-title">Rastreamento de Seguidores · Posts Ativos</span>
+      <span style="font-size:10px;color:var(--sub);font-weight:500">Planilha manual</span>
     </div>
     <div class="tbl-scroll">
       <table>
         <thead><tr>
           <th>Post</th>
-          <th class="tr">Investimento</th>
-          <th class="tr">Engajamento</th>
-          <th class="tr">Salvamentos</th>
-          <th class="tr">Comentários</th>
-          <th class="tr">Cliques</th>
-          <th class="tr">Views 50%</th>
-          <th class="tr">Views 95%</th>
-          <th class="tr">Custo 50%</th>
-          <th class="tr">Custo 95%</th>
-          <th class="tr">Hook Rate</th>
-          <th>Link</th>
-        </tr></thead>
-        <tbody id="i-tbody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="tbl-box">
-    <div class="tbl-head">
-      <span class="tbl-head-title">Detalhamento por Post · Seguidores</span>
-    </div>
-    <div class="tbl-scroll">
-      <table>
-        <thead><tr>
-          <th>Post</th>
-          <th class="tr">Saldo Atual</th>
-          <th class="tr">Ganho na Semana</th>
+          <th class="tr">Seguidores (Total)</th>
+          <th class="tr">Ganho</th>
           <th class="tr">Investimento</th>
           <th class="tr">CPS</th>
           <th>Link</th>
         </tr></thead>
         <tbody id="s-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tbl-box">
+    <div class="tbl-head" style="justify-content:space-between">
+      <span class="tbl-head-title">Desempenho dos Anúncios · Meta Ads</span>
+      <span style="font-size:10px;color:var(--sub);font-weight:500">Dados Stract</span>
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr>
+          <th>Campanha</th>
+          <th class="tr">Investimento</th>
+          <th class="tr">Alcance</th>
+          <th class="tr">Cliques</th>
+          <th class="tr">Views 50%</th>
+          <th class="tr">Views 95%</th>
+          <th class="tr">Custo 50%</th>
+          <th class="tr">Hook Rate</th>
+        </tr></thead>
+        <tbody id="ad-tbody"></tbody>
       </table>
     </div>
   </div>
@@ -272,72 +274,94 @@ function weekLabel(k){const[y,m,d]=k.split('-');const ms=['jan','fev','mar','abr
 
 // ── IMPULSIONADOS ─────────────────────────────────────────────
 function renderImp(adRows, segRows){
-  // KPIs totais
-  const tot=adRows.reduce((a,r)=>({
+  // ── Seguidores (planilha manual) ──────────────────────────────
+  const segByKey={};
+  segRows.filter(r=>r['Data']&&r['Seguidores (Saldo)']).forEach(r=>{
+    const k=r['Link da publicação']||r['Nome do anúncio']||'?';
+    if(!segByKey[k])segByKey[k]=[];
+    segByKey[k].push(r);
+  });
+
+  const segPostList=Object.entries(segByKey).map(([key,list])=>{
+    list.sort((a,b)=>new Date(a['Data'])-new Date(b['Data']));
+    const first=list[0], lat=list[list.length-1], prev=list.length>1?list[list.length-2]:null;
+    const nome=lat['Nome do anúncio']||key;
+    const link=lat['Link da publicação']||'';
+    const saldo=N(lat['Seguidores (Saldo)']);
+    const saldoFirst=N(first['Seguidores (Saldo)']);
+    const ganho=saldo-saldoFirst;               // total desde início do rastreamento
+    const ganhoUlt=saldo-(prev?N(prev['Seguidores (Saldo)']):saldoFirst);
+    const inv=money(lat['Investimento']);         // investimento total acumulado
+    const invFirst=money(first['Investimento']);
+    const invUlt=inv-(prev?money(prev['Investimento']):invFirst);
+    const cps=ganho>0?(inv-invFirst)/ganho:0;   // CPS total
+    return{nome,link,saldo,ganho,ganhoUlt,inv,invUlt,cps,list};
+  });
+
+  const totInvSeg=segPostList.reduce((a,p)=>a+p.inv,0);
+  const totGanhoSeg=segPostList.reduce((a,p)=>a+p.ganho,0);
+  const totCPS=totGanhoSeg>0?segPostList.reduce((a,p)=>a+(p.inv-money(p.list[0]['Investimento'])),0)/totGanhoSeg:0;
+
+  // ── Meta Ads (Stract) ─────────────────────────────────────────
+  const adTot=adRows.reduce((a,r)=>({
     invest:a.invest+money(r['Investimento']), alcance:a.alcance+N(r['Alcance']),
     imp:a.imp+N(r['Impressões']), cliques:a.cliques+N(r['Cliques no link']),
-    curtidas:a.curtidas+N(r['Curtidas']), comentarios:a.comentarios+N(r['Comentários']),
-    compart:a.compart+N(r['Compartilhamentos']),
     v50:a.v50+num(r['Views 50% do vídeo']), v95:a.v95+num(r['Views 95% do vídeo']),
-  }),{invest:0,alcance:0,imp:0,cliques:0,curtidas:0,comentarios:0,compart:0,v50:0,v95:0});
+  }),{invest:0,alcance:0,imp:0,cliques:0,v50:0,v95:0});
 
-  const ctr=tot.imp>0?tot.cliques/tot.imp*100:0;
-  const cpm=tot.imp>0?tot.invest/tot.imp*1000:0;
-  const cv50=tot.v50>0?tot.invest/tot.v50:0;
-  const cv95=tot.v95>0?tot.invest/tot.v95:0;
+  const ctr=adTot.imp>0?adTot.cliques/adTot.imp*100:0;
+  const cpm=adTot.imp>0?adTot.invest/adTot.imp*1000:0;
+  const cv50=adTot.v50>0?adTot.invest/adTot.v50:0;
+  const cv95=adTot.v95>0?adTot.invest/adTot.v95:0;
 
-  // Seguidores totais
-  const segPosts={};
-  segRows.filter(r=>r['Data']&&r['Seguidores (Saldo)']).forEach(r=>{
-    const k=r['Link da publicação']||'';
-    if(!segPosts[k])segPosts[k]=[];
-    segPosts[k].push(r);
-  });
-  let totSeg=0,totInvSeg=0,totGanho=0,cpsNum=0,cpsDen=0;
-  Object.values(segPosts).forEach(list=>{
-    list.sort((a,b)=>new Date(a['Data'])-new Date(b['Data']));
-    const lat=list[list.length-1], prev=list.length>1?list[list.length-2]:null;
-    const saldo=N(lat['Seguidores (Saldo)']);
-    const ganho=saldo-(prev?N(prev['Seguidores (Saldo)']):0);
-    const inv=money(lat['Investimento']);
-    const invP=prev?money(prev['Investimento']):0;
-    const invSem=inv-invP;
-    totSeg+=saldo; totGanho+=ganho; totInvSeg+=inv;
-    if(ganho>0){cpsNum+=invSem;cpsDen+=ganho;}
-  });
-  const cps=cpsDen>0?cpsNum/cpsDen:0;
-
-  R('i-invest').textContent=fmtR(tot.invest);
-  R('i-seg').textContent='+'+fmtN(totGanho);
-  R('i-cps').textContent=cps>0?fmtR(cps):'—';
-  R('i-alcance').textContent=fmtN(tot.alcance);
-  R('i-cliques').textContent=fmtN(tot.cliques);
+  // KPIs - Seção 1: Seguidores (manual)
+  R('i-invest').textContent=fmtR(totInvSeg);
+  R('i-seg').textContent='+'+fmtN(totGanhoSeg);
+  R('i-cps').textContent=totCPS>0?fmtR(totCPS):'—';
+  // KPIs - Seção 2: Meta Ads (Stract)
+  R('i-alcance').textContent=fmtN(adTot.alcance);
+  R('i-cliques').textContent=fmtN(adTot.cliques);
   R('i-ctr').textContent='CTR '+fmtPct(ctr);
-  R('i-v50').textContent=fmtN(Math.round(tot.v50));
+  R('i-v50').textContent=fmtN(Math.round(adTot.v50));
   R('i-v50c').textContent=cv50>0?'Custo '+fmtR(cv50):'—';
-  R('i-v95').textContent=fmtN(Math.round(tot.v95));
+  R('i-v95').textContent=fmtN(Math.round(adTot.v95));
   R('i-v95c').textContent=cv95>0?'Custo '+fmtR(cv95):'—';
   R('i-cpm').textContent=fmtR(cpm);
 
-  // Gráfico 1: Investimento semanal + Custo 50%
+  // Gráfico 1: Seguidores ganhos por post (barras horizontais)
+  const segLabels=segPostList.map(p=>postName(p.nome));
+  const segGanhos=segPostList.map(p=>p.ganho);
+  const segCPS=segPostList.map(p=>+p.cps.toFixed(2));
+  mkChart('i-chart1',{
+    type:'bar',
+    data:{labels:segLabels,datasets:[
+      {type:'bar',label:'Seguidores Ganhos',data:segGanhos,backgroundColor:segPostList.map((_,i)=>i%2===0?'rgba(167,139,250,.4)':'rgba(0,229,160,.4)'),borderColor:segPostList.map((_,i)=>i%2===0?C.purple:C.green),borderWidth:1.5,borderRadius:6,yAxisID:'yA'},
+      {type:'line',label:'CPS (R$)',data:segCPS,borderColor:C.yellow,backgroundColor:'rgba(255,209,102,.06)',pointBackgroundColor:C.yellow,pointRadius:6,tension:.3,fill:false,yAxisID:'yB',spanGaps:true},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12}}},
+      scales:{
+        x:{grid:{color:C.grid},ticks:{maxRotation:20}},
+        yA:{position:'left',grid:{color:C.grid},title:{display:true,text:'Seguidores',color:C.purple,font:{size:10}}},
+        yB:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>`R$${v}`,color:C.yellow},title:{display:true,text:'CPS',color:C.yellow,font:{size:10}}},
+      }
+    }
+  });
+
+  // Gráfico 2: Meta Ads - Investimento semanal + Custo View 50%
   const weekMap={};
   adRows.forEach(r=>{
     const wk=weekKey(r['Data']);
-    if(!weekMap[wk])weekMap[wk]={invest:0,v50:0,imp:0};
+    if(!weekMap[wk])weekMap[wk]={invest:0,v50:0};
     weekMap[wk].invest+=money(r['Investimento']);
     weekMap[wk].v50+=num(r['Views 50% do vídeo']);
-    weekMap[wk].imp+=N(r['Impressões']);
   });
   const wks=Object.keys(weekMap).sort();
-  const wkLabels=wks.map(weekLabel);
-  const wkInvest=wks.map(k=>+weekMap[k].invest.toFixed(2));
-  const wkCv50=wks.map(k=>weekMap[k].v50>0?+(weekMap[k].invest/weekMap[k].v50).toFixed(2):null);
-
-  mkChart('i-chart1',{
+  mkChart('i-chart2',{
     type:'bar',
-    data:{labels:wkLabels,datasets:[
-      {type:'bar',label:'Investimento (R$)',data:wkInvest,backgroundColor:'rgba(167,139,250,.35)',borderColor:C.purple,borderWidth:1.5,borderRadius:5,yAxisID:'yA'},
-      {type:'line',label:'Custo 50% (R$)',data:wkCv50,borderColor:C.orange,backgroundColor:'rgba(249,115,22,.06)',pointBackgroundColor:C.orange,pointRadius:5,tension:.4,fill:false,yAxisID:'yB',spanGaps:true},
+    data:{labels:wks.map(weekLabel),datasets:[
+      {type:'bar',label:'Investimento (R$)',data:wks.map(k=>+weekMap[k].invest.toFixed(2)),backgroundColor:'rgba(96,165,250,.35)',borderColor:C.blue,borderWidth:1.5,borderRadius:5,yAxisID:'yA'},
+      {type:'line',label:'Custo 50% (R$)',data:wks.map(k=>weekMap[k].v50>0?+(weekMap[k].invest/weekMap[k].v50).toFixed(2):null),borderColor:C.orange,backgroundColor:'rgba(249,115,22,.06)',pointBackgroundColor:C.orange,pointRadius:5,tension:.4,fill:false,yAxisID:'yB',spanGaps:true},
     ]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12}}},
@@ -349,94 +373,40 @@ function renderImp(adRows, segRows){
     }
   });
 
-  // Gráfico 2: Seguidores por semana + CPS
-  const segDates=[];
-  const segGanhos=[];
-  const segCPS=[];
-  Object.values(segPosts).forEach(list=>{
-    list.sort((a,b)=>new Date(a['Data'])-new Date(b['Data']));
-    for(let i=0;i<list.length;i++){
-      const r=list[i],prev=i>0?list[i-1]:null;
-      const d=r['Data'].substring(0,10);
-      const g=N(r['Seguidores (Saldo)'])-(prev?N(prev['Seguidores (Saldo)']):0);
-      const inv=money(r['Investimento'])-(prev?money(prev['Investimento']):0);
-      const c=g>0?inv/g:null;
-      if(!segDates.includes(d)){segDates.push(d);segGanhos.push(g);segCPS.push(c);}
-      else{const idx=segDates.indexOf(d);segGanhos[idx]+=g;}
-    }
-  });
+  // Tabela 1: Seguidores (planilha manual) - apenas posts ativos
+  R('s-tbody').innerHTML=segPostList.map(p=>`<tr>
+    <td class="tnm" title="${p.nome}">${postName(p.nome)}</td>
+    <td class="tr"><strong style="color:var(--purple)">${fmtN(p.saldo)}</strong></td>
+    <td class="tr" style="color:var(--green)">+${p.ganho}</td>
+    <td class="tr">${fmtR(p.inv)}</td>
+    <td class="tr" style="color:var(--cyan)">${p.cps>0?fmtR(p.cps):'—'}</td>
+    <td>${p.link?`<a href="${p.link}" target="_blank" class="lnk">🔗 Ver post</a>`:'—'}</td>
+  </tr>`).join('');
 
-  mkChart('i-chart2',{
-    type:'bar',
-    data:{labels:segDates.map(fmtDatePt),datasets:[
-      {type:'bar',label:'Seguidores Ganhos',data:segGanhos,backgroundColor:'rgba(0,229,160,.3)',borderColor:C.green,borderWidth:1.5,borderRadius:5,yAxisID:'yA'},
-      {type:'line',label:'CPS (R$)',data:segCPS,borderColor:C.yellow,backgroundColor:'rgba(255,209,102,.06)',pointBackgroundColor:C.yellow,pointRadius:5,tension:.4,fill:false,yAxisID:'yB',spanGaps:true},
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12}}},
-      scales:{
-        x:{grid:{color:C.grid}},
-        yA:{position:'left',grid:{color:C.grid}},
-        yB:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>`R$${v}`,color:C.yellow}},
-      }
-    }
-  });
-
-  // Tabela impulsionamentos agrupado por post
-  const posts={};
+  // Tabela 2: Meta Ads - todas as campanhas (Stract)
+  const adByCamp={};
   adRows.forEach(r=>{
-    const k=(r['Nome do post']||r['Campanha']||'').substring(0,100);
-    if(!posts[k])posts[k]={nome:k,invest:0,alcance:0,imp:0,cliques:0,curtidas:0,comentarios:0,compart:0,v50:0,v95:0,v15:0,link:''};
-    const p=posts[k];
+    const k=(r['Nome do post']||r['Campanha']||'Campanha').substring(0,120);
+    if(!adByCamp[k])adByCamp[k]={nome:k,invest:0,alcance:0,imp:0,cliques:0,v50:0,v95:0,v15:0};
+    const p=adByCamp[k];
     p.invest+=money(r['Investimento']); p.alcance+=N(r['Alcance']); p.imp+=N(r['Impressões']);
-    p.cliques+=N(r['Cliques no link']); p.curtidas+=N(r['Curtidas']); p.comentarios+=N(r['Comentários']);
-    p.compart+=N(r['Compartilhamentos']); p.v50+=num(r['Views 50% do vídeo']); p.v95+=num(r['Views 95% do vídeo']);
+    p.cliques+=N(r['Cliques no link']); p.v50+=num(r['Views 50% do vídeo']); p.v95+=num(r['Views 95% do vídeo']);
     p.v15+=num(r['View 15%']);
   });
-  const pList=Object.values(posts).sort((a,b)=>b.invest-a.invest);
-  R('i-tbody').innerHTML=pList.map(p=>{
-    const engaj=p.curtidas+p.comentarios+p.compart;
+  R('ad-tbody').innerHTML=Object.values(adByCamp).sort((a,b)=>b.invest-a.invest).map(p=>{
+    const cv50p=p.v50>0?p.invest/p.v50:null;
     const hookRate=p.imp>0&&p.v15>0?p.v15/p.imp*100:null;
-    const cv50=p.v50>0?p.invest/p.v50:null;
-    const cv95=p.v95>0?p.invest/p.v95:null;
     return`<tr>
       <td class="tnm" title="${p.nome}">${postName(p.nome)}</td>
       <td class="tr" style="color:var(--orange)">${fmtR(p.invest)}</td>
-      <td class="tr">${fmtN(engaj)}</td>
-      <td class="tr">${p.compart>0?fmtN(p.compart):'—'}</td>
-      <td class="tr">${p.comentarios||'—'}</td>
+      <td class="tr">${fmtN(p.alcance)}</td>
       <td class="tr">${fmtN(p.cliques)}</td>
       <td class="tr" style="color:var(--cyan)">${p.v50>0?fmtN(Math.round(p.v50)):'—'}</td>
       <td class="tr" style="color:var(--purple)">${p.v95>0?fmtN(Math.round(p.v95)):'—'}</td>
-      <td class="tr">${cv50?fmtR(cv50):'—'}</td>
-      <td class="tr">${cv95?fmtR(cv95):'—'}</td>
+      <td class="tr">${cv50p?fmtR(cv50p):'—'}</td>
       <td class="tr">${hookRate?fmtPct(hookRate):'—'}</td>
-      <td>—</td>
     </tr>`;
   }).join('');
-
-  // Tabela seguidores
-  const sRows=[];
-  Object.entries(segPosts).forEach(([link,list])=>{
-    list.sort((a,b)=>new Date(a['Data'])-new Date(b['Data']));
-    const lat=list[list.length-1],prev=list.length>1?list[list.length-2]:null;
-    const nome=(lat['Nome do anúncio']||link);
-    const saldo=N(lat['Seguidores (Saldo)']);
-    const ganho=saldo-(prev?N(prev['Seguidores (Saldo)']):0);
-    const inv=money(lat['Investimento']);
-    const invP=prev?money(prev['Investimento']):0;
-    const invSem=inv-invP;
-    const cpsRow=ganho>0?invSem/ganho:0;
-    sRows.push({nome,link,saldo,ganho,inv,cpsRow});
-  });
-  R('s-tbody').innerHTML=sRows.map(r=>`<tr>
-    <td class="tnm" title="${r.nome}">${postName(r.nome)}</td>
-    <td class="tr"><strong style="color:var(--purple)">${fmtN(r.saldo)}</strong></td>
-    <td class="tr" style="color:var(--green)">+${r.ganho}</td>
-    <td class="tr">${fmtR(r.inv)}</td>
-    <td class="tr" style="color:var(--cyan)">${r.cpsRow>0?fmtR(r.cpsRow):'—'}</td>
-    <td><a href="${r.link}" target="_blank" class="lnk">🔗 Ver post</a></td>
-  </tr>`).join('');
 }
 
 // ── ORGÂNICO ──────────────────────────────────────────────────
