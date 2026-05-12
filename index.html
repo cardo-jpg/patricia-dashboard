@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Instagram · Patrícia Vogtt</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    :root {
+      --bg:#0b1525; --card:#131f30; --card2:#182538; --border:#1e3045;
+      --cyan:#00c6ff; --green:#00e5a0; --yellow:#ffd166; --red:#ff6b6b;
+      --purple:#a78bfa; --orange:#f97316; --pink:#f472b6;
+      --text:#f0f4f8; --sub:#7a90a8; --sub2:#3d5472; --grid:rgba(30,48,69,0.8);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding-bottom:48px;}
+
+    header{background:linear-gradient(135deg,#0b1525,#160d2f);border-bottom:1px solid var(--border);padding:18px 36px;display:flex;align-items:center;justify-content:space-between;}
+    .h-title{font-size:17px;font-weight:700;}
+    .h-title span{background:linear-gradient(90deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .h-sub{font-size:12px;color:var(--sub);margin-top:3px;}
+    .badge{display:inline-flex;align-items:center;background:var(--card2);border:1px solid var(--green);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--green);}
+    .badge::before{content:'● ';font-size:8px;margin-right:4px;}
+
+    .tabs{background:#0c1828;border-bottom:1px solid var(--border);padding:0 36px;display:flex;gap:0;}
+    .tab-btn{padding:14px 22px;font-size:13px;font-weight:600;color:var(--sub);cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;transition:all .2s;}
+    .tab-btn:hover{color:var(--text);}
+    .tab-btn.active{color:var(--purple);border-bottom-color:var(--purple);}
+
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
+
+    .container{max-width:1400px;margin:0 auto;padding:24px 36px;}
+    .sec{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;margin-top:24px;}
+
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
+    .kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+    .kpi-lbl{font-size:10px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+    .kpi-val{font-size:26px;font-weight:800;}
+    .kpi-note{font-size:11px;color:var(--sub);margin-top:4px;}
+    .c-cyan{border-top:2px solid var(--cyan);} .c-green{border-top:2px solid var(--green);}
+    .c-purple{border-top:2px solid var(--purple);} .c-orange{border-top:2px solid var(--orange);}
+    .c-pink{border-top:2px solid var(--pink);} .c-yellow{border-top:2px solid var(--yellow);}
+    .cyan{color:var(--cyan);} .green{color:var(--green);} .purple{color:var(--purple);}
+    .orange{color:var(--orange);} .pink{color:var(--pink);} .yellow{color:var(--yellow);}
+
+    .chart-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px;}
+    .chart-grid.full{grid-template-columns:1fr;}
+    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+    .chart-ttl{font-size:13px;font-weight:700;margin-bottom:4px;}
+    .chart-sub{font-size:11px;color:var(--sub);margin-bottom:16px;}
+    .chart-wrap{position:relative;} .h240{height:240px;} .h280{height:280px;} .h320{height:320px;}
+
+    .tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:auto;margin-bottom:24px;}
+    table{width:100%;border-collapse:collapse;}
+    th{background:var(--card2);font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1px;padding:10px 14px;text-align:left;white-space:nowrap;position:sticky;top:0;}
+    td{padding:10px 14px;font-size:13px;border-top:1px solid var(--border);white-space:nowrap;}
+    tr:hover td{background:rgba(255,255,255,0.02);}
+    .td-r{text-align:right;} .td-trunc{max-width:220px;overflow:hidden;text-overflow:ellipsis;}
+    .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+    .pill-v{background:rgba(0,229,160,.12);color:var(--green);}
+    .pill-i{background:rgba(167,139,250,.12);color:var(--purple);}
+    .pill-c{background:rgba(0,198,255,.12);color:var(--cyan);}
+    .pill-r{background:rgba(249,115,22,.12);color:var(--orange);}
+    a.lnk{color:var(--cyan);font-size:11px;text-decoration:none;} a.lnk:hover{text-decoration:underline;}
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="h-title">Dashboard Instagram · <span>Patrícia Vogtt</span></div>
+    <div class="h-sub" id="h-sub">⏳ Buscando dados...</div>
+  </div>
+  <span class="badge">Ao vivo</span>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('seg',this)">👥 Seguidores</button>
+  <button class="tab-btn" onclick="switchTab('imp',this)">🚀 Impulsionados</button>
+  <button class="tab-btn" onclick="switchTab('org',this)">🌱 Orgânico</button>
+</div>
+
+<!-- ── SEGUIDORES ─────────────────────────────── -->
+<div id="panel-seg" class="tab-panel active">
+  <div class="container">
+    <p class="sec" style="padding-top:22px;margin-top:0">Seguidores por Post Impulsionado · atualização manual semanal</p>
+    <div class="kpi-grid">
+      <div class="kpi c-purple"><p class="kpi-lbl">Total de Seguidores</p><p class="kpi-val purple" id="s-total">—</p><p class="kpi-note">soma dos posts ativos</p></div>
+      <div class="kpi c-green"><p class="kpi-lbl">Ganho Semanal</p><p class="kpi-val green" id="s-ganho">—</p><p class="kpi-note" id="s-ganho-n">última semana</p></div>
+      <div class="kpi c-cyan"><p class="kpi-lbl">CPS Semanal</p><p class="kpi-val cyan" id="s-cps">—</p><p class="kpi-note">custo por seguidor</p></div>
+      <div class="kpi c-orange"><p class="kpi-lbl">Investimento Total</p><p class="kpi-val orange" id="s-invest">—</p><p class="kpi-note">todos os posts</p></div>
+    </div>
+    <div class="chart-grid full">
+      <div class="chart-card">
+        <p class="chart-ttl">Crescimento de Seguidores por Post</p>
+        <p class="chart-sub">Saldo acumulado — atualização semanal</p>
+        <div class="chart-wrap h280"><canvas id="s-chart"></canvas></div>
+      </div>
+    </div>
+    <p class="sec">Detalhamento por Post</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Post</th><th>Link</th><th class="td-r">Saldo Atual</th>
+          <th class="td-r">Ganho Semanal</th><th class="td-r">Investimento</th><th class="td-r">CPS</th>
+        </tr></thead>
+        <tbody id="s-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── IMPULSIONADOS ──────────────────────────── -->
+<div id="panel-imp" class="tab-panel">
+  <div class="container">
+    <p class="sec" style="padding-top:22px;margin-top:0">Posts Impulsionados · Meta Ads</p>
+    <div class="kpi-grid">
+      <div class="kpi c-orange"><p class="kpi-lbl">Investimento Total</p><p class="kpi-val orange" id="i-invest">—</p><p class="kpi-note" id="i-period">—</p></div>
+      <div class="kpi c-purple"><p class="kpi-lbl">Alcance Total</p><p class="kpi-val purple" id="i-alcance">—</p><p class="kpi-note">pessoas únicas</p></div>
+      <div class="kpi c-cyan"><p class="kpi-lbl">Cliques no Link</p><p class="kpi-val cyan" id="i-cliques">—</p><p class="kpi-note" id="i-ctr">CTR —</p></div>
+      <div class="kpi c-yellow"><p class="kpi-lbl">CPM Médio</p><p class="kpi-val yellow" id="i-cpm">—</p><p class="kpi-note">custo/mil impressões</p></div>
+      <div class="kpi c-green"><p class="kpi-lbl">Views 50% Vídeo</p><p class="kpi-val green" id="i-v50">—</p><p class="kpi-note" id="i-v50c">—</p></div>
+      <div class="kpi c-pink"><p class="kpi-lbl">Views 95% Vídeo</p><p class="kpi-val pink" id="i-v95">—</p><p class="kpi-note" id="i-v95c">—</p></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <p class="chart-ttl">Investimento por Post</p>
+        <p class="chart-sub">Total acumulado no período</p>
+        <div class="chart-wrap h280"><canvas id="i-invest-chart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <p class="chart-ttl">Retenção de Vídeo por Post</p>
+        <p class="chart-sub">Views 50% vs 95%</p>
+        <div class="chart-wrap h280"><canvas id="i-views-chart"></canvas></div>
+      </div>
+    </div>
+    <p class="sec">Detalhamento por Post</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Post</th><th class="td-r">Investido</th><th class="td-r">Alcance</th>
+          <th class="td-r">Impressões</th><th class="td-r">Cliques</th><th class="td-r">CTR</th>
+          <th class="td-r">CPM</th><th class="td-r">Curtidas</th><th class="td-r">Coment.</th>
+          <th class="td-r">Compart.</th><th class="td-r">Views 50%</th><th class="td-r">Views 95%</th>
+        </tr></thead>
+        <tbody id="i-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── ORGÂNICO ────────────────────────────────── -->
+<div id="panel-org" class="tab-panel">
+  <div class="container">
+    <p class="sec" style="padding-top:22px;margin-top:0">Posts Orgânicos · Instagram Insights</p>
+    <div class="kpi-grid">
+      <div class="kpi c-purple"><p class="kpi-lbl">Posts Publicados</p><p class="kpi-val purple" id="o-posts">—</p><p class="kpi-note" id="o-period">—</p></div>
+      <div class="kpi c-cyan"><p class="kpi-lbl">Alcance Total</p><p class="kpi-val cyan" id="o-alcance">—</p><p class="kpi-note">pessoas únicas</p></div>
+      <div class="kpi c-pink"><p class="kpi-lbl">Curtidas</p><p class="kpi-val pink" id="o-curtidas">—</p><p class="kpi-note">total</p></div>
+      <div class="kpi c-green"><p class="kpi-lbl">Salvamentos</p><p class="kpi-val green" id="o-salvamentos">—</p><p class="kpi-note">conteúdo salvo</p></div>
+      <div class="kpi c-orange"><p class="kpi-lbl">Seguidores Ganhos</p><p class="kpi-val orange" id="o-seguidores">—</p><p class="kpi-note">via posts orgânicos</p></div>
+      <div class="kpi c-yellow"><p class="kpi-lbl">Compartilhamentos</p><p class="kpi-val yellow" id="o-compartilhamentos">—</p><p class="kpi-note">total</p></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <p class="chart-ttl">Top Posts por Alcance</p>
+        <p class="chart-sub">Posts com maior alcance orgânico</p>
+        <div class="chart-wrap h280"><canvas id="o-alcance-chart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <p class="chart-ttl">Engajamento por Tipo</p>
+        <p class="chart-sub">Curtidas, salvamentos, compartilhamentos e comentários</p>
+        <div class="chart-wrap h280"><canvas id="o-eng-chart"></canvas></div>
+      </div>
+    </div>
+    <p class="sec">Detalhamento por Post</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Data</th><th>Tipo</th><th class="td-r">Alcance</th><th class="td-r">Curtidas</th>
+          <th class="td-r">Coment.</th><th class="td-r">Compart.</th><th class="td-r">Salvamentos</th>
+          <th class="td-r">Seg. Ganhos</th><th class="td-r">Visitas Perfil</th><th>Link</th>
+        </tr></thead>
+        <tbody id="o-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEET_ID = '1U0-RxvDoIbCI7UNC76hXsRfryNV-Y3GX0x-44KxdVFk';
+const GVT = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+
+const C = { cyan:'#00c6ff',green:'#00e5a0',yellow:'#ffd166',red:'#ff6b6b',purple:'#a78bfa',orange:'#f97316',pink:'#f472b6',grid:'rgba(30,48,69,0.8)' };
+const PAL = [C.purple,C.cyan,C.green,C.orange,C.pink,C.yellow,'#818cf8','#60a5fa','#34d399','#fb923c'];
+const ch = {};
+
+const R = id => document.getElementById(id);
+const fmtN = n => n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'k' : String(n||0);
+const fmtR = v => 'R$ ' + (+v||0).toFixed(2).replace('.',',');
+const fmtPct = v => (+v||0).toFixed(2).replace('.',',') + '%';
+const money = s => parseFloat((s||'').replace('R$ ','').replace(',','.').replace(/\s/g,''))||0;
+const num = s => parseFloat((s||'').replace(',','.'))||0;
+const N = s => parseInt(s)||0;
+
+function mkChart(id, cfg){ if(ch[id]) ch[id].destroy(); ch[id] = new Chart(R(id), cfg); }
+function switchTab(name, btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  R('panel-'+name).classList.add('active'); btn.classList.add('active');
+}
+
+function csvLine(line){
+  const res=[]; let cur='', inQ=false;
+  for(const c of line){ if(c==='"'){inQ=!inQ;} else if(c===','&&!inQ){res.push(cur);cur='';} else cur+=c; }
+  res.push(cur); return res;
+}
+function parseCSV(txt){
+  const lines = txt.trim().split('\n');
+  const heads = csvLine(lines[0]).map(h=>h.replace(/"/g,'').trim());
+  return lines.slice(1).filter(l=>l.trim()).map(l=>{
+    const vals = csvLine(l).map(v=>v.replace(/^"|"$/g,'').trim());
+    return heads.reduce((o,h,i)=>{ o[h]=vals[i]||''; return o; },{});
+  });
+}
+
+function tipoLabel(t){ return t==='VIDEO'?'Vídeo':t==='CAROUSEL_ALBUM'?'Carrossel':t==='IMAGE'?'Imagem':t||'Post'; }
+function tipoPill(t){ return t==='VIDEO'?'pill-v':t==='CAROUSEL_ALBUM'?'pill-i':t==='IMAGE'?'pill-c':'pill-r'; }
+function fmtDate(d){ return d ? d.substring(5).replace('-','/') : '—'; }
+
+// ── SEGUIDORES ────────────────────────────────────────────
+function renderSeg(rows){
+  const posts = {};
+  rows.filter(r=>r['Data']&&r['Seguidores (Saldo)']).forEach(r=>{
+    const k = r['Link da publicação']||r['Link do post']||'';
+    if(!k) return;
+    if(!posts[k]) posts[k]=[];
+    posts[k].push(r);
+  });
+
+  let totSaldo=0,totGanho=0,totInvest=0,cpsNum=0,cpsDen=0;
+  const rows2=[], chartDates=new Set(), chartDS={};
+
+  Object.entries(posts).forEach(([link,list],idx)=>{
+    list.sort((a,b)=>new Date(a['Data'])-new Date(b['Data']));
+    const nome = list[0]['Nome do anúncio']||link;
+    const latest = list[list.length-1];
+    const prev   = list.length>1 ? list[list.length-2] : null;
+    const saldo  = N(latest['Seguidores (Saldo)']);
+    const ganho  = saldo - (prev ? N(prev['Seguidores (Saldo)']) : 0);
+    const invest = money(latest['Investimento']);
+    const invPrev= prev ? money(prev['Investimento']) : 0;
+    const invSem = invest - invPrev;
+    const cps    = ganho>0 ? invSem/ganho : 0;
+    totSaldo+=saldo; totGanho+=ganho; totInvest+=invest;
+    if(ganho>0){ cpsNum+=invSem; cpsDen+=ganho; }
+    list.forEach(r=>chartDates.add(r['Data']));
+    chartDS[link]={nome:nome.substring(0,45),list,color:PAL[idx%PAL.length]};
+    rows2.push({nome:nome.substring(0,50),link,saldo,ganho,invest,cps});
+  });
+
+  R('s-total').textContent = fmtN(totSaldo);
+  R('s-ganho').textContent = '+'+totGanho;
+  R('s-cps').textContent   = cpsDen>0 ? fmtR(cpsNum/cpsDen) : '—';
+  R('s-invest').textContent= fmtR(totInvest);
+
+  const labels = [...chartDates].sort();
+  mkChart('s-chart',{
+    type:'line',
+    data:{ labels, datasets: Object.values(chartDS).map(({nome,list,color})=>{
+      const m={}; list.forEach(r=>m[r['Data']]=N(r['Seguidores (Saldo)']));
+      return { label:nome, data:labels.map(d=>m[d]??null), borderColor:color, backgroundColor:color+'22', fill:false, tension:.3, pointRadius:5, spanGaps:true };
+    })},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12}}},
+      scales:{ x:{grid:{color:C.grid}}, y:{grid:{color:C.grid},ticks:{callback:v=>fmtN(v)}} }
+    }
+  });
+
+  R('s-tbody').innerHTML = rows2.map(r=>`<tr>
+    <td class="td-trunc" title="${r.nome}">${r.nome}</td>
+    <td><a href="${r.link}" target="_blank" class="lnk">🔗 Ver post</a></td>
+    <td class="td-r"><strong style="color:var(--purple)">${fmtN(r.saldo)}</strong></td>
+    <td class="td-r" style="color:var(--green)">+${r.ganho}</td>
+    <td class="td-r">${fmtR(r.invest)}</td>
+    <td class="td-r" style="color:var(--cyan)">${r.cps>0?fmtR(r.cps):'—'}</td>
+  </tr>`).join('');
+}
+
+// ── IMPULSIONADOS ─────────────────────────────────────────
+function renderImp(rows){
+  const posts={};
+  rows.forEach(r=>{
+    const k=(r['Nome do post']||r['Campanha']||'').substring(0,80);
+    if(!k) return;
+    if(!posts[k]) posts[k]={nome:k,invest:0,alcance:0,imp:0,cliques:0,curtidas:0,comentarios:0,compartilhamentos:0,v50:0,v95:0};
+    const p=posts[k];
+    p.invest+=money(r['Investimento']); p.alcance+=N(r['Alcance']); p.imp+=N(r['Impressões']);
+    p.cliques+=N(r['Cliques no link']); p.curtidas+=N(r['Curtidas']); p.comentarios+=N(r['Comentários']);
+    p.compartilhamentos+=N(r['Compartilhamentos']); p.v50+=num(r['Views 50% do vídeo']); p.v95+=num(r['Views 95% do vídeo']);
+  });
+
+  const list = Object.values(posts).sort((a,b)=>b.invest-a.invest);
+  const tot  = list.reduce((a,p)=>({ invest:a.invest+p.invest, alcance:a.alcance+p.alcance, imp:a.imp+p.imp, cliques:a.cliques+p.cliques, v50:a.v50+p.v50, v95:a.v95+p.v95 }),{invest:0,alcance:0,imp:0,cliques:0,v50:0,v95:0});
+  const ctr = tot.imp>0 ? tot.cliques/tot.imp*100 : 0;
+  const cpm = tot.imp>0 ? tot.invest/tot.imp*1000 : 0;
+
+  R('i-invest').textContent  = fmtR(tot.invest);
+  R('i-alcance').textContent = fmtN(tot.alcance);
+  R('i-cliques').textContent = fmtN(tot.cliques);
+  R('i-ctr').textContent     = 'CTR '+fmtPct(ctr);
+  R('i-cpm').textContent     = fmtR(cpm);
+  R('i-v50').textContent     = fmtN(Math.round(tot.v50));
+  R('i-v50c').textContent    = tot.v50>0 ? 'Custo '+fmtR(tot.invest/tot.v50) : '—';
+  R('i-v95').textContent     = fmtN(Math.round(tot.v95));
+  R('i-v95c').textContent    = tot.v95>0 ? 'Custo '+fmtR(tot.invest/tot.v95) : '—';
+
+  const lbls = list.map(p=>p.nome.substring(0,28)+'...');
+  mkChart('i-invest-chart',{
+    type:'bar', data:{ labels:lbls, datasets:[{label:'Investimento',data:list.map(p=>+p.invest.toFixed(2)),backgroundColor:PAL,borderRadius:6}] },
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`R$ ${ctx.parsed.x.toFixed(2)}`}}},
+      scales:{x:{grid:{color:C.grid},ticks:{callback:v=>`R$${v}`}},y:{grid:{color:C.grid},ticks:{font:{size:10}}}}
+    }
+  });
+  mkChart('i-views-chart',{
+    type:'bar', data:{ labels:lbls, datasets:[
+      {label:'Views 50%',data:list.map(p=>Math.round(p.v50)),backgroundColor:C.cyan+'99',borderRadius:4},
+      {label:'Views 95%',data:list.map(p=>Math.round(p.v95)),backgroundColor:C.purple+'99',borderRadius:4},
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{legend:{position:'top',labels:{boxWidth:10}}},
+      scales:{x:{grid:{color:C.grid}},y:{grid:{color:C.grid},ticks:{font:{size:10}}}}
+    }
+  });
+
+  R('i-tbody').innerHTML = list.map(p=>{
+    const pCtr=p.imp>0?p.cliques/p.imp*100:0; const pCpm=p.imp>0?p.invest/p.imp*1000:0;
+    return `<tr>
+      <td class="td-trunc" style="max-width:200px" title="${p.nome}">${p.nome.substring(0,40)}${p.nome.length>40?'...':''}</td>
+      <td class="td-r" style="color:var(--orange)">${fmtR(p.invest)}</td>
+      <td class="td-r">${fmtN(p.alcance)}</td><td class="td-r">${fmtN(p.imp)}</td>
+      <td class="td-r">${fmtN(p.cliques)}</td><td class="td-r">${fmtPct(pCtr)}</td>
+      <td class="td-r">${fmtR(pCpm)}</td><td class="td-r" style="color:var(--pink)">${fmtN(p.curtidas)}</td>
+      <td class="td-r">${p.comentarios}</td><td class="td-r">${fmtN(p.compartilhamentos)}</td>
+      <td class="td-r" style="color:var(--cyan)">${p.v50>0?fmtN(Math.round(p.v50)):'—'}</td>
+      <td class="td-r" style="color:var(--purple)">${p.v95>0?fmtN(Math.round(p.v95)):'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── ORGÂNICO ──────────────────────────────────────────────
+function renderOrg(rows){
+  rows.sort((a,b)=>new Date(b['Data'])-new Date(a['Data']));
+  const tot = rows.reduce((a,r)=>({
+    alcance:a.alcance+N(r['Alcance']), curtidas:a.curtidas+N(r['Curtidas']),
+    comentarios:a.comentarios+N(r['Comentários']), compartilhamentos:a.compartilhamentos+N(r['Compartilhamentos']),
+    salvamentos:a.salvamentos+N(r['Salvamentos']), seguidores:a.seguidores+N(r['Seguidores Ganhos']),
+  }),{alcance:0,curtidas:0,comentarios:0,compartilhamentos:0,salvamentos:0,seguidores:0});
+
+  R('o-posts').textContent = rows.length;
+  R('o-alcance').textContent = fmtN(tot.alcance);
+  R('o-curtidas').textContent = fmtN(tot.curtidas);
+  R('o-salvamentos').textContent = fmtN(tot.salvamentos);
+  R('o-seguidores').textContent = '+'+tot.seguidores;
+  R('o-compartilhamentos').textContent = fmtN(tot.compartilhamentos);
+
+  const top = [...rows].sort((a,b)=>N(b['Alcance'])-N(a['Alcance'])).slice(0,10);
+  mkChart('o-alcance-chart',{
+    type:'bar', data:{ labels:top.map(r=>fmtDate(r['Data'])+' '+tipoLabel(r['Tipo de Post'])), datasets:[{label:'Alcance',data:top.map(r=>N(r['Alcance'])),backgroundColor:PAL,borderRadius:6}] },
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmtN(ctx.parsed.x)+' alcance'}}},
+      scales:{x:{grid:{color:C.grid},ticks:{callback:v=>fmtN(v)}},y:{grid:{color:C.grid},ticks:{font:{size:11}}}}
+    }
+  });
+
+  mkChart('o-eng-chart',{
+    type:'doughnut', data:{
+      labels:['Curtidas','Salvamentos','Compartilhamentos','Comentários'],
+      datasets:[{data:[tot.curtidas,tot.salvamentos,tot.compartilhamentos,tot.comentarios],
+        backgroundColor:[C.pink,C.green,C.yellow,C.cyan],borderColor:'#131f30',borderWidth:3,hoverOffset:8}]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'60%',
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:10}},
+        tooltip:{callbacks:{label:ctx=>` ${fmtN(ctx.parsed)} (${(ctx.parsed/rows.length).toFixed(1)} média/post)`}}}
+    }
+  });
+
+  R('o-tbody').innerHTML = rows.map(r=>`<tr>
+    <td>${fmtDate(r['Data'])}</td>
+    <td><span class="pill ${tipoPill(r['Tipo de Post'])}">${tipoLabel(r['Tipo de Post'])}</span></td>
+    <td class="td-r" style="color:var(--cyan)">${fmtN(N(r['Alcance']))}</td>
+    <td class="td-r" style="color:var(--pink)">${fmtN(N(r['Curtidas']))}</td>
+    <td class="td-r">${N(r['Comentários'])}</td>
+    <td class="td-r">${fmtN(N(r['Compartilhamentos']))}</td>
+    <td class="td-r" style="color:var(--green)">${fmtN(N(r['Salvamentos']))}</td>
+    <td class="td-r" style="color:var(--orange)">${N(r['Seguidores Ganhos'])>0?'+'+N(r['Seguidores Ganhos']):'—'}</td>
+    <td class="td-r">${fmtN(N(r['Visitas ao Perfil']))}</td>
+    <td><a href="${r['Link do Post']}" target="_blank" class="lnk">🔗 Ver</a></td>
+  </tr>`).join('');
+}
+
+// ── LOAD ──────────────────────────────────────────────────
+async function load(){
+  const ts = Date.now();
+  try {
+    const [sTxt,iTxt,oTxt] = await Promise.all([
+      fetch(`${GVT}&gid=0&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
+      fetch(`${GVT}&gid=305872251&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
+      fetch(`${GVT}&gid=1387861195&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
+    ]);
+    renderSeg(parseCSV(sTxt).filter(r=>r['Data']));
+    renderImp(parseCSV(iTxt).filter(r=>r['Data']));
+    renderOrg(parseCSV(oTxt).filter(r=>r['Data']));
+    const hora = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    R('h-sub').textContent = `Atualizado às ${hora} · 26/abr – 12/mai 2026`;
+  } catch(e){
+    R('h-sub').textContent = '⚠ Erro: '+e.message;
+  }
+}
+load();
+</script>
+</body>
+</html>
