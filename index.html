@@ -490,7 +490,7 @@ async function load(){
   const ts=Date.now();
   try{
     const[dTxt,sTxt,oTxt]=await Promise.all([
-      fetch(`${GVT2}&gid=0&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),        // daily sheet
+      fetch(`${GVT2}&sheet=Dados&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),   // daily sheet
       fetch(`${GVT}&gid=0&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),          // 2-post seguidores
       fetch(`${GVT}&gid=1387861195&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()), // orgânico
     ]);
