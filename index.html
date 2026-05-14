@@ -507,12 +507,12 @@ async function load(){
   const ts=Date.now();
   try{
     const[dTxt,pTxt,oTxt]=await Promise.all([
-      fetch(`${GVT2}&sheet=Dados&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),        // daily sheet
-      fetch(`${GVT3}&gid=1950155209&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),     // posts ativos Pati
-      fetch(`${GVT}&gid=1387861195&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),      // orgânico
+      fetch(`${GVT2}&sheet=Dados&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
+      fetch(`${GVT3}&gid=1950155209&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()).catch(()=>''),
+      fetch(`${GVT}&gid=1387861195&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
     ]);
     const dailyRows=parseCSV(dTxt);
-    const postsData=parsePatiPosts(pTxt);
+    const postsData=pTxt?parsePatiPosts(pTxt):[];
     const orgRows  =parseCSV(oTxt).filter(r=>r['Data']);
 
     renderImp(dailyRows,postsData);
