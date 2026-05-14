@@ -147,6 +147,7 @@
           <th class="tr">Ganho</th>
           <th class="tr">Investimento</th>
           <th class="tr">CPS</th>
+          <th class="tr">CPC</th>
           <th>Link</th>
         </tr></thead>
         <tbody id="s-tbody"></tbody>
@@ -418,8 +419,10 @@ function renderImp(dailyRows, segRows){
     const ganhoDisplay=ganho>0?ganho:saldo; // sem histórico → usa saldo como total ganho
     const inv=money(lat['Investimento']);
     const invFirst=money(first['Investimento']);
+    const clk=N(lat['Cliques']||lat['Cliques no link']||'');
     const cps=ganhoDisplay>0?inv/ganhoDisplay:0;
-    return{nome,link,saldo,ganhoDisplay,inv,cps};
+    const cpc=money(lat['CPC'])||(clk>0&&inv>0?inv/clk:0);
+    return{nome,link,saldo,ganhoDisplay,inv,cps,cpc};
   });
   const totSegPosts=segPostList.reduce((a,p)=>a+p.saldo,0);
   R('s-tbody').innerHTML=segPostList.map(p=>`<tr>
@@ -428,6 +431,7 @@ function renderImp(dailyRows, segRows){
     <td class="tr" style="color:var(--green)">+${fmtN(p.ganhoDisplay)}</td>
     <td class="tr">${fmtR(p.inv)}</td>
     <td class="tr" style="color:var(--cyan)">${p.cps>0?fmtR(p.cps):'—'}</td>
+    <td class="tr" style="color:var(--yellow)">${p.cpc>0?fmtR(p.cpc):'—'}</td>
     <td>${p.link?`<a href="${p.link}" target="_blank" class="lnk">🔗 Ver post</a>`:'—'}</td>
   </tr>`).join('');
 }
