@@ -509,7 +509,7 @@ async function load(){
   try{
     const[dTxt,pTxt,oTxt]=await Promise.all([
       fetch(`${GVT2}&sheet=Dados&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
-      fetch(`${GVT3}&gid=1950155209&_=${ts}`,{cache:'no-cache'}).then(r=>r.ok?r.text():Promise.reject(r.status)).catch(()=>''),
+      fetch(`${GVT3}&gid=1950155209&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()).catch(()=>''),
       fetch(`${GVT}&gid=1387861195&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
     ]);
     const dailyRows=parseCSV(dTxt);
