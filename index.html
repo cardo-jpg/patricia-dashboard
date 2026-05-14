@@ -372,27 +372,23 @@ window.setDailyMonth=function(mKey,btn){
   renderDailyView(mKey);
 };
 
-// ── Parser planilha multi-cliente → filtra seção Pati + Verdadeiro ──
+// ── Parser aba Pati → filtra linhas Verdadeiro com link Instagram ──
 function parsePatiPosts(csvTxt){
+  if(!csvTxt)return[];
   const lines=csvTxt.trim().split('\n');
-  let inPati=false;
   const posts=[];
-  const CLIENTS=/^(hire|malu|aline|corredor|hist.rico)/i;
   for(const line of lines){
     const c=csvLine(line).map(v=>v.replace(/^"|"$/g,'').trim());
-    const c0=(c[0]||'').toLowerCase();
-    if(c0.startsWith('pati')){inPati=true;continue;}
-    if(c0&&CLIENTS.test(c0)){inPati=false;continue;}
-    if(!inPati)continue;
     const ativo=(c[1]||'').toLowerCase();
     const link =(c[3]||'');
     if(ativo==='verdadeiro'&&link.includes('instagram.com')){
-      const nome  =c[4]||'';
-      const inv   =money(c[5]||'');
-      const saldo =parseInt((c[6]||'').replace(/[.,]/g,v=>v===','&&(c[6]||'').indexOf(',')!==(c[6]||'').lastIndexOf(',')?'':v==='.'?'':'.'))
-                   ||parseInt((c[6]||'').replace(/\./g,'').replace(',','.'))||0;
-      const cps   =money(c[7]||'');
-      posts.push({nome,link,inv,saldo,cps});
+      const nome =c[4]||'';
+      const inv  =money(c[5]||'');
+      // saldo pode vir como "1,332" (formato BR) ou "1332"
+      const saldoRaw=(c[6]||'').replace(/\./g,'').replace(',','.');
+      const saldo=parseInt(saldoRaw)||0;
+      const cps  =money(c[7]||'');
+      if(link&&(inv>0||saldo>0))posts.push({nome,link,inv,saldo,cps});
     }
   }
   return posts;
