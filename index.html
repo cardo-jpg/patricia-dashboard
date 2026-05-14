@@ -376,11 +376,12 @@ function renderImp(dailyRows, segRows){
     const pd=parseDailyDate(col(r,'DATA','Data'));
     const seg=parseInt(col(r,'Novos Seguidores'))||0;
     const inv=money(col(r,'Investimento diário','Investimento diario','Investimento'));
-    const cps=money(col(r,'Custo por novos seguidores'));
     const clk=parseInt(col(r,'Cliques'))||0;
-    const cpc=money(col(r,'CPC'));
     const imp=parseInt(col(r,'Impressões','Impressoes').replace(/\./g,''))||0;
-    const cpm=money(col(r,'CPM'));
+    // Usa valor da planilha se disponível, senão calcula
+    const cps=money(col(r,'Custo por novos seguidores'))||(seg>0&&inv>0?inv/seg:0);
+    const cpc=money(col(r,'CPC'))||(clk>0&&inv>0?inv/clk:0);
+    const cpm=money(col(r,'CPM'))||(imp>0&&inv>0?inv/imp*1000:0);
     return{...r,_pd:pd,_seg:seg,_inv:inv,_cps:cps,_clk:clk,_cpc:cpc,_imp:imp,_cpm:cpm};
   }).filter(r=>r._pd).sort((a,b)=>a._pd.key.localeCompare(b._pd.key));
 
