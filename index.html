@@ -234,7 +234,7 @@ const DAILY_SHEET_ID= '1FqaWfL76VcYKeYGVbqO7qwi3EUqwj7YaLEL23Dlqgd8';
 const POSTS_SHEET_ID= '1e5lZGVxm5itrgQZ2GJhL6gyyZGoyVvsK';
 const GVT  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 const GVT2 = `https://docs.google.com/spreadsheets/d/${DAILY_SHEET_ID}/gviz/tq?tqx=out:csv`;
-const GVT3 = `https://docs.google.com/spreadsheets/d/${POSTS_SHEET_ID}/pub?output=csv`;
+const GVT3 = `https://docs.google.com/spreadsheets/d/${POSTS_SHEET_ID}/gviz/tq?tqx=out:csv`;
 const C = {cyan:'#00c6ff',green:'#00e5a0',yellow:'#ffd166',red:'#ff6b6b',purple:'#a78bfa',orange:'#f97316',pink:'#f472b6',blue:'#60a5fa',grid:'rgba(30,48,69,0.7)'};
 const PAL = [C.purple,C.cyan,C.green,C.orange,C.pink,C.yellow,C.blue,'#818cf8','#34d399','#fb923c'];
 const ch={};
@@ -509,7 +509,7 @@ async function load(){
   try{
     const[dTxt,pTxt,oTxt]=await Promise.all([
       fetch(`${GVT2}&sheet=Dados&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
-      fetch(`${GVT3}&gid=1950155209`,{cache:'no-cache'}).then(r=>r.text()).catch(()=>''),
+      fetch(`${GVT3}&gid=1950155209&_=${ts}`,{cache:'no-cache'}).then(r=>r.ok?r.text():Promise.reject(r.status)).catch(()=>''),
       fetch(`${GVT}&gid=1387861195&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
     ]);
     const dailyRows=parseCSV(dTxt);
