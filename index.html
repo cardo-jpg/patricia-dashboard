@@ -393,7 +393,7 @@ function parsePatiPosts(csvTxt){
       const saldoRaw=(c[6]||'').replace(/\./g,'').replace(',','.');
       const saldo=parseInt(saldoRaw)||0;
       const cps  =money(c[7]||'');
-      if(link&&(inv>0||saldo>0))posts.push({nome,link,inv,saldo,cps});
+      if(link)posts.push({nome,link,inv,saldo,cps});
     }
   }
   return posts;
