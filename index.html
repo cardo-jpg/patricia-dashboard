@@ -544,7 +544,12 @@ function renderPostsTable(){
       ?`<span class="pill-ativo" style="cursor:default;font-size:9px;padding:1px 7px;margin-left:6px">Ativo</span>`
       :`<span class="pill-inativo" style="cursor:default;font-size:9px;padding:1px 7px;margin-left:6px">Inativo</span>`;
     return`<tr class="${ativo?'':'inativo'}">
-      <td class="tnm" title="${p.nome}">${postName(p.nome)}${statusPill}${obsHtml}</td>
+      <td style="max-width:280px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="tnm" style="min-width:0;flex:1" title="${p.nome}">${postName(p.nome)}</span>
+          ${statusPill}
+        </div>${obsHtml}
+      </td>
       <td class="tr"><strong style="color:var(--purple)">${fmtN(p.saldo)}</strong></td>
       <td class="tr" style="color:var(--green)">+${fmtN(p.saldo)}</td>
       <td class="tr">${fmtR(p.inv)}</td>
