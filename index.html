@@ -111,6 +111,13 @@
     .modal-sub{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;}
     tr.inativo td{opacity:.4;}
     tr.inativo .tnm::after{content:' (inativo)';font-size:10px;color:var(--red);}
+    /* Ebook tab extras */
+    .pill-g{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25);}
+    .pill-r{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(255,107,107,.1);color:var(--red);border:1px solid rgba(255,107,107,.2);}
+    .pill-b{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(122,144,168,.1);color:var(--sub);border:1px solid rgba(122,144,168,.2);}
+    .td-r{text-align:right;}
+    .ad-btn{display:inline-flex;align-items:center;gap:5px;background:rgba(0,198,255,.08);border:1px solid rgba(0,198,255,.2);color:var(--cyan);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;text-decoration:none;}
+    .ad-btn:hover{background:rgba(0,198,255,.15);}
   </style>
 </head>
 <body>
@@ -129,6 +136,7 @@
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('imp',this)">🚀 Impulsionados + Seguidores</button>
   <button class="tab-btn" onclick="switchTab('org',this)">🌱 Orgânico</button>
+  <button class="tab-btn" onclick="switchTab('ebook',this)">📘 Ebook</button>
 </div>
 
 <!-- ══ IMPULSIONADOS + SEGUIDORES ═══════════════════════════════ -->
@@ -250,6 +258,71 @@
     </div>
   </div>
 
+</div>
+</div>
+
+<!-- ══ EBOOK ══════════════════════════════════════════════════ -->
+<div id="panel-ebook" class="tab-panel">
+<div class="container">
+  <p class="sec-title">Ebook · Facebook Ads · a partir de 21/06</p>
+  <div class="kpi-row">
+    <div class="kpi k-orange"><p class="kpi-lbl">Investido</p><p class="kpi-val co" id="ebk-invest">—</p><p class="kpi-note" id="ebk-invest-n">período</p></div>
+    <div class="kpi k-green"><p class="kpi-lbl">Leads</p><p class="kpi-val cg" id="ebk-leads">—</p><p class="kpi-note" id="ebk-leads-n">período</p></div>
+    <div class="kpi k-cyan"><p class="kpi-lbl">CPL</p><p class="kpi-val cc" id="ebk-cpl">—</p><p class="kpi-note">custo por lead</p></div>
+    <div class="kpi k-yellow"><p class="kpi-lbl">Cliques</p><p class="kpi-val cy" id="ebk-clicks">—</p><p class="kpi-note" id="ebk-cpc-n">CPC —</p></div>
+    <div class="kpi k-purple"><p class="kpi-lbl">Impressões</p><p class="kpi-val cv" id="ebk-imp">—</p><p class="kpi-note" id="ebk-ctr-n">CTR —</p></div>
+    <div class="kpi k-pink"><p class="kpi-lbl">CPM</p><p class="kpi-val cp" id="ebk-cpm">—</p><p class="kpi-note">custo por mil impressões</p></div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-box">
+      <p class="chart-box-ttl">Leads por Dia · CPL</p>
+      <p class="chart-box-sub">Barras = leads captados · Linha = CPL diário (R$)</p>
+      <div class="cw h280"><canvas id="ebk-chart-day"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <p class="chart-box-ttl">Distribuição por Criativo</p>
+      <p class="chart-box-sub">% do investimento no período</p>
+      <div class="cw h280"><canvas id="ebk-chart-donut"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="chart-box">
+      <p class="chart-box-ttl">CPM · CTR por Dia</p>
+      <p class="chart-box-sub">Evolução diária das métricas de qualidade</p>
+      <div class="cw h220"><canvas id="ebk-chart-quality"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <p class="chart-box-ttl">Resumo do Período</p>
+      <p class="chart-box-sub">Totais acumulados</p>
+      <div style="padding-top:8px">
+        <p class="kpi-lbl" style="margin-bottom:4px">CPM</p><p class="kpi-val co" id="ebk-sum-cpm" style="font-size:20px;margin-bottom:14px">—</p>
+        <p class="kpi-lbl" style="margin-bottom:4px">CTR MÉDIO</p><p class="kpi-val cc" id="ebk-sum-ctr" style="font-size:20px;margin-bottom:14px">—</p>
+        <p class="kpi-lbl" style="margin-bottom:4px">CPC MÉDIO</p><p class="kpi-val cy" id="ebk-sum-cpc" style="font-size:20px">—</p>
+      </div>
+    </div>
+  </div>
+
+  <p class="sec-title" style="margin-top:8px">Detalhamento por Criativo</p>
+  <div class="tbl-box">
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr>
+          <th>Criativo</th>
+          <th class="td-r">Investido</th>
+          <th class="td-r">Impressões</th>
+          <th class="td-r">Cliques</th>
+          <th class="td-r">CTR</th>
+          <th class="td-r">Leads</th>
+          <th class="td-r">CPL</th>
+          <th>Status</th>
+          <th>Anúncio</th>
+        </tr></thead>
+        <tbody id="ebk-tbody"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -666,19 +739,182 @@ function renderOrg(rows){
   </tr>`).join('');
 }
 
+// ── EBOOK ─────────────────────────────────────────────────────
+const EB_SHEET_ID = '1MNmYN39x8FB8BGBQocZGAL8kDGQ4WZ5B7uAy5KazJ1c';
+const EB_GVT      = `https://docs.google.com/spreadsheets/d/${EB_SHEET_ID}/gviz/tq?tqx=out:csv`;
+const META_CPL_EB = 1.50;
+
+function ebShortDate(s){
+  if(!s)return'';
+  const p=s.split('/');
+  return p.length>=2?p[0].padStart(2,'0')+'/'+p[1].padStart(2,'0'):'';
+}
+function ebDateOk(s){
+  // aceita a partir de 21/06
+  const d=ebShortDate(s);
+  if(!d)return false;
+  const [dd,mm]=d.split('/').map(Number);
+  if(mm>6)return true;
+  if(mm===6&&dd>=21)return true;
+  return false;
+}
+function ebParseMoney(s){
+  let v=(s||'').replace(/R\$\s?/g,'').replace(/\s/g,'').trim();
+  if(v.includes(',')&&v.includes('.'))v=v.replace(/\./g,'').replace(',','.');
+  else if(v.includes(','))v=v.replace(',','.');
+  return parseFloat(v)||0;
+}
+function ebMapCriativo(code){
+  if(!code)return'Outros';
+  return code.replace(/^AD\d+_(IMG_|VID_)/,'').replace(/_/g,' ');
+}
+
+function renderEbook(rows){
+  if(!rows.length){
+    R('ebk-tbody').innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--sub);padding:24px">Sem dados a partir de 21/06</td></tr>';
+    return;
+  }
+
+  // aggregate totals
+  let totInv=0,totLeads=0,totClicks=0,totImp=0;
+  rows.forEach(r=>{totInv+=r.inv;totLeads+=r.leads;totClicks+=r.clicks;totImp+=r.imp;});
+
+  const cpl  = totLeads>0?totInv/totLeads:0;
+  const cpc  = totClicks>0?totInv/totClicks:0;
+  const ctr  = totImp>0?totClicks/totImp*100:0;
+  const cpm  = totImp>0?totInv/totImp*1000:0;
+
+  R('ebk-invest').textContent=fmtR(totInv);
+  R('ebk-leads').textContent=totLeads||'—';
+  R('ebk-cpl').textContent=cpl>0?fmtR(cpl):'—';
+  R('ebk-clicks').textContent=totClicks;
+  R('ebk-invest-n').textContent=rows.length+' dias com dados';
+  R('ebk-leads-n').textContent='leads captados';
+  R('ebk-cpc-n').textContent='CPC '+fmtR(cpc);
+  R('ebk-imp').textContent=fmtN(totImp);
+  R('ebk-ctr-n').textContent='CTR '+ctr.toFixed(2)+'%';
+  R('ebk-cpm').textContent=fmtR(cpm);
+  R('ebk-sum-cpm').textContent=fmtR(cpm);
+  R('ebk-sum-ctr').textContent=ctr.toFixed(2)+'%';
+  R('ebk-sum-cpc').textContent=fmtR(cpc);
+
+  // group by date
+  const dateMap={};
+  rows.forEach(r=>{
+    if(!dateMap[r.date])dateMap[r.date]={inv:0,leads:0,clicks:0,imp:0};
+    dateMap[r.date].inv+=r.inv; dateMap[r.date].leads+=r.leads;
+    dateMap[r.date].clicks+=r.clicks; dateMap[r.date].imp+=r.imp;
+  });
+  const dates=Object.keys(dateMap).sort((a,b)=>{
+    const[da,ma]=a.split('/').map(Number);
+    const[db,mb]=b.split('/').map(Number);
+    return ma!==mb?ma-mb:da-db;
+  });
+  const dailyLeads=dates.map(d=>dateMap[d].leads);
+  const dailyCPL  =dates.map(d=>dateMap[d].leads>0?+(dateMap[d].inv/dateMap[d].leads).toFixed(2):null);
+  const dailyCPM  =dates.map(d=>dateMap[d].imp>0?+(dateMap[d].inv/dateMap[d].imp*1000).toFixed(2):null);
+  const dailyCTR  =dates.map(d=>dateMap[d].imp>0?+(dateMap[d].clicks/dateMap[d].imp*100).toFixed(2):null);
+
+  // Leads por Dia chart
+  if(ch['ebk-day']){ch['ebk-day'].destroy();delete ch['ebk-day'];}
+  ch['ebk-day']=new Chart(R('ebk-chart-day').getContext('2d'),{
+    type:'bar',
+    data:{labels:dates,datasets:[
+      {type:'line',label:'CPL (R$)',data:dailyCPL,borderColor:C.orange,backgroundColor:'rgba(249,115,22,0.06)',pointBackgroundColor:C.orange,pointRadius:4,tension:0.4,fill:false,yAxisID:'yCPL',order:1,spanGaps:true},
+      {label:'Leads',data:dailyLeads,backgroundColor:C.green,borderRadius:{topLeft:4,topRight:4},yAxisID:'yL',order:2},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,color:'#f0f4f8'}},tooltip:{mode:'index'}},
+      scales:{
+        x:{grid:{color:C.grid},ticks:{color:'#7a90a8',font:{size:10}}},
+        yL:{position:'left',grid:{color:C.grid},ticks:{color:'#7a90a8',stepSize:1}},
+        yCPL:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>'R$'+v,color:C.orange}},
+      }
+    }
+  });
+
+  // Distribuição por Criativo donut
+  const criMap={};
+  rows.forEach(r=>{if(!criMap[r.criativo])criMap[r.criativo]={inv:0,leads:0,clicks:0,imp:0,url:r.url};criMap[r.criativo].inv+=r.inv;criMap[r.criativo].leads+=r.leads;criMap[r.criativo].clicks+=r.clicks;criMap[r.criativo].imp+=r.imp;});
+  const criNames=Object.keys(criMap).filter(n=>criMap[n].inv>0);
+  if(ch['ebk-donut']){ch['ebk-donut'].destroy();delete ch['ebk-donut'];}
+  ch['ebk-donut']=new Chart(R('ebk-chart-donut').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:criNames,datasets:[{data:criNames.map(n=>criMap[n].inv),backgroundColor:PAL,borderColor:'#131f30',borderWidth:3,hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:10,color:'#f0f4f8'}},
+        tooltip:{callbacks:{label:ctx=>` R$ ${ctx.parsed.toFixed(2)}`}}}}
+  });
+
+  // CPM/CTR quality chart
+  if(ch['ebk-quality']){ch['ebk-quality'].destroy();delete ch['ebk-quality'];}
+  ch['ebk-quality']=new Chart(R('ebk-chart-quality').getContext('2d'),{
+    type:'line',
+    data:{labels:dates,datasets:[
+      {label:'CPM (R$)',data:dailyCPM,borderColor:C.orange,backgroundColor:'rgba(249,115,22,0.06)',pointRadius:3,tension:0.4,yAxisID:'yCPM',spanGaps:true},
+      {label:'CTR (%)',data:dailyCTR,borderColor:C.cyan,backgroundColor:'rgba(0,198,255,0.06)',pointRadius:3,tension:0.4,yAxisID:'yCTR',spanGaps:true,borderDash:[4,3]},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,color:'#f0f4f8'}}},
+      scales:{
+        x:{grid:{color:C.grid},ticks:{color:'#7a90a8',font:{size:10}}},
+        yCPM:{position:'left',grid:{color:C.grid},ticks:{callback:v=>'R$'+v,color:C.orange}},
+        yCTR:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>v+'%',color:C.cyan}},
+      }
+    }
+  });
+
+  // Table por criativo
+  const sorted=criNames.sort((a,b)=>criMap[b].inv-criMap[a].inv);
+  R('ebk-tbody').innerHTML=sorted.map(nome=>{
+    const c=criMap[nome];
+    const cplN=c.leads>0?c.inv/c.leads:null;
+    const ctrN=c.imp>0?c.clicks/c.imp*100:null;
+    const badge=cplN===null
+      ?`<span class="pill-b">Aguardando</span>`
+      :cplN<=META_CPL_EB
+        ?`<span class="pill-g">Abaixo da meta</span>`
+        :`<span class="pill-r">Acima da meta</span>`;
+    return`<tr>
+      <td>${nome}</td>
+      <td class="td-r">${fmtR(c.inv)}</td>
+      <td class="td-r">${fmtN(c.imp)}</td>
+      <td class="td-r">${c.clicks}</td>
+      <td class="td-r">${ctrN!==null?ctrN.toFixed(2)+'%':'—'}</td>
+      <td class="td-r">${c.leads||'—'}</td>
+      <td class="td-r">${cplN!==null?fmtR(cplN):'—'}</td>
+      <td>${badge}</td>
+      <td>${c.url?`<a href="${c.url}" target="_blank" class="ad-btn">🔗 Ver Ad</a>`:'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
 // ── LOAD ──────────────────────────────────────────────────────
 async function load(){
   const ts=Date.now();
   try{
-    const[dTxt,oTxt]=await Promise.all([
+    const[dTxt,oTxt,ebTxt]=await Promise.all([
       fetch(`${GVT2}&sheet=Dados&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
       fetch(`${GVT}&gid=1387861195&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
+      fetch(`${EB_GVT}&gid=734559877&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()).catch(()=>''),
     ]);
     const dailyRows=parseCSV(dTxt);
     const orgRows  =parseCSV(oTxt).filter(r=>r['Data']);
 
+    // parse ebook rows, filter >= 21/06
+    const ebRows=ebTxt?parseCSV(ebTxt).filter(r=>ebDateOk(r.Date)).map(r=>({
+      date:ebShortDate(r.Date),
+      criativo:ebMapCriativo(r.Criativo),
+      url:r.URL||'',
+      inv:ebParseMoney(r.Investido),
+      imp:parseInt(r.Impressoes)||0,
+      clicks:parseInt(r.Cliques)||0,
+      leads:parseInt(r.Leads)||0,
+    })):[];
+
     renderImp(dailyRows);
     renderOrg(orgRows);
+    renderEbook(ebRows);
 
     const actives=_allDailyRows.filter(r=>r._inv>0||r._seg>0);
     const dMin=actives[0]?._pd?.label||'';
