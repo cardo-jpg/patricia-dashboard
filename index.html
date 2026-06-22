@@ -101,10 +101,15 @@
     .btn-ghost{background:none;border:1px solid var(--border);color:var(--sub);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:700;cursor:pointer;}
     .btn-del{background:rgba(255,107,107,.1);border:none;color:var(--red);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;}
     .btn-edit-posts{background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.3);color:var(--purple);border-radius:8px;padding:4px 12px;font-size:10px;font-weight:700;cursor:pointer;}
-    .post-list-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);gap:12px;}
-    .post-list-name{font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);}
+    .post-list-item{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:12px;}
+    .post-list-name{font-size:12px;color:var(--text);line-height:1.4;margin-bottom:4px;}
+    .post-list-obs{font-size:11px;color:var(--sub);font-style:italic;margin-top:2px;}
+    .pill-ativo{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(0,229,160,.12);color:var(--green);cursor:pointer;user-select:none;border:1px solid rgba(0,229,160,.25);}
+    .pill-inativo{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(255,107,107,.1);color:var(--red);cursor:pointer;user-select:none;border:1px solid rgba(255,107,107,.2);}
     .modal-sep{border:none;border-top:1px solid var(--border);margin:20px 0 16px;}
     .modal-sub{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;}
+    tr.inativo td{opacity:.4;}
+    tr.inativo .tnm::after{content:' (inativo)';font-size:10px;color:var(--red);}
   </style>
 </head>
 <body>
@@ -248,9 +253,9 @@
 </div>
 
 <!-- ══ MODAL POSTS ════════════════════════════════════════════ -->
-<div class="modal-overlay" id="posts-modal" onclick="if(event.target===this)closePostsModal()">
+<div class="modal-overlay" id="posts-modal">
   <div class="modal-box">
-    <p class="modal-title">✏️ Gerenciar Posts Ativos</p>
+    <p class="modal-title">✏️ Gerenciar Posts</p>
     <div id="post-list"></div>
     <hr class="modal-sep">
     <p class="modal-sub">Adicionar Post</p>
@@ -276,9 +281,24 @@
         <input class="form-input" id="f-dia" placeholder="0" type="number" step="0.01" min="0">
       </div>
     </div>
+    <div class="form-row" style="margin-top:4px">
+      <label class="form-label">Status</label>
+      <select class="form-input" id="f-status">
+        <option value="ativo">Ativo</option>
+        <option value="inativo">Inativo</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Observação</label>
+      <input class="form-input" id="f-obs" placeholder="Ex: Post bloqueado pelo Meta, aguardando revisão...">
+    </div>
     <div style="display:flex;gap:10px;margin-top:8px">
-      <button class="btn-purple" onclick="addPost()">+ Adicionar</button>
-      <button class="btn-ghost" onclick="closePostsModal()">Fechar</button>
+      <button class="btn-purple" onclick="draftAdd()">+ Adicionar</button>
+    </div>
+    <hr class="modal-sep">
+    <div style="display:flex;gap:10px">
+      <button class="btn-purple" onclick="saveModal()" style="flex:1;justify-content:center">💾 Salvar</button>
+      <button class="btn-ghost" onclick="closePostsModal()">Cancelar</button>
     </div>
   </div>
 </div>
@@ -434,13 +454,13 @@ window.setDailyMonth=function(mKey,btn){
 // ── POSTS (localStorage) ──────────────────────────────────────
 const POSTS_KEY = 'pati_posts_v1';
 const DEFAULT_POSTS = [
-  {nome:'CARROSSEL - Renda extra que eu faria essa semana, se eu nao estivesse num retiro no pais de gales - vagas - CTA SRI', link:'https://www.instagram.com/p/DVCSqL8EQdr/?igsh=c2ttN3pmM2ZxcW95', inv:1308.69, saldo:1555, dia:25},
-  {nome:'CARROSSEL - Você foi ensinada CLT ou empreender - CTA SRI', link:'https://www.instagram.com/p/DYNmB2rkYRI/', inv:346.11, saldo:272, dia:12},
-  {nome:'CARROSSEL - Trabalho remoto não é a mesma coisa que trabalho 100% remoto - CTA SRI (Workshop)', link:'https://www.instagram.com/p/DYcPWK9jDYi/', inv:346.98, saldo:330, dia:12},
-  {nome:'CARROSSEL - Projetos que eu faria na UPWORK para construir renda em dolar - CTA SRI', link:'https://www.instagram.com/p/DYedqpSgKyJ/', inv:172.11, saldo:120, dia:12},
-  {nome:'CARROSSEL - Coisas que agora são normais para mim porque faço dinheiro como freelancert - CTA SRI', link:'https://www.instagram.com/p/DYxiavjmUxy/', inv:44.11, saldo:35, dia:8},
-  {nome:'CARROSSEL - Se você esta infeliz com seu trabalho peça demissão - CTA SRI', link:'https://www.instagram.com/p/DY7cQ3PgHfd/', inv:64.98, saldo:50, dia:8},
-  {nome:'REELS - Essa é a milha filha - CTA SRI', link:'https://www.instagram.com/p/DZR6qscAkuJ/', inv:21.00, saldo:55, dia:6},
+  {nome:'CARROSSEL - Renda extra que eu faria essa semana, se eu nao estivesse num retiro no pais de gales - vagas - CTA SRI', link:'https://www.instagram.com/p/DVCSqL8EQdr/?igsh=c2ttN3pmM2ZxcW95', inv:1308.69, saldo:1555, dia:25, status:'ativo', obs:''},
+  {nome:'CARROSSEL - Você foi ensinada CLT ou empreender - CTA SRI', link:'https://www.instagram.com/p/DYNmB2rkYRI/', inv:346.11, saldo:272, dia:12, status:'ativo', obs:''},
+  {nome:'CARROSSEL - Trabalho remoto não é a mesma coisa que trabalho 100% remoto - CTA SRI (Workshop)', link:'https://www.instagram.com/p/DYcPWK9jDYi/', inv:346.98, saldo:330, dia:12, status:'ativo', obs:''},
+  {nome:'CARROSSEL - Projetos que eu faria na UPWORK para construir renda em dolar - CTA SRI', link:'https://www.instagram.com/p/DYedqpSgKyJ/', inv:172.11, saldo:120, dia:12, status:'ativo', obs:''},
+  {nome:'CARROSSEL - Coisas que agora são normais para mim porque faço dinheiro como freelancert - CTA SRI', link:'https://www.instagram.com/p/DYxiavjmUxy/', inv:44.11, saldo:35, dia:8, status:'ativo', obs:''},
+  {nome:'CARROSSEL - Se você esta infeliz com seu trabalho peça demissão - CTA SRI', link:'https://www.instagram.com/p/DY7cQ3PgHfd/', inv:64.98, saldo:50, dia:8, status:'ativo', obs:''},
+  {nome:'REELS - Essa é a milha filha - CTA SRI', link:'https://www.instagram.com/p/DZR6qscAkuJ/', inv:21.00, saldo:55, dia:6, status:'ativo', obs:''},
 ];
 
 function getPosts(){
@@ -449,52 +469,79 @@ function getPosts(){
 }
 function setPosts(posts){ localStorage.setItem(POSTS_KEY,JSON.stringify(posts)); }
 
+let _draft=null;
+
 function openPostsModal(){
+  _draft=getPosts().map(p=>({...p}));
   renderPostList();
   R('posts-modal').classList.add('open');
 }
-function closePostsModal(){ R('posts-modal').classList.remove('open'); }
-
-function renderPostList(){
-  const posts=getPosts();
-  R('post-list').innerHTML=posts.length===0
-    ?'<p style="font-size:12px;color:var(--sub);text-align:center;padding:16px 0">Nenhum post cadastrado</p>'
-    :posts.map((p,i)=>`<div class="post-list-item">
-        <span class="post-list-name" title="${p.nome}">${p.nome.replace(/^(CARROSSEL|REELS)\s*-\s*/,'')}</span>
-        <button class="btn-del" onclick="deletePost(${i})">✕</button>
-      </div>`).join('');
+function closePostsModal(){
+  _draft=null;
+  R('posts-modal').classList.remove('open');
+}
+function saveModal(){
+  setPosts(_draft);
+  _draft=null;
+  renderPostsTable();
+  R('posts-modal').classList.remove('open');
 }
 
-function addPost(){
+function renderPostList(){
+  if(!_draft){return;}
+  R('post-list').innerHTML=_draft.length===0
+    ?'<p style="font-size:12px;color:var(--sub);text-align:center;padding:16px 0">Nenhum post cadastrado</p>'
+    :_draft.map((p,i)=>{
+      const ativo=(p.status||'ativo')==='ativo';
+      const shortName=p.nome.replace(/^(CARROSSEL|REELS)\s*-\s*/,'');
+      return`<div class="post-list-item">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+            <span class="post-list-name">${shortName}</span>
+            <span class="${ativo?'pill-ativo':'pill-inativo'}" onclick="draftToggle(${i})" title="Clique para alternar">${ativo?'Ativo':'Inativo'}</span>
+          </div>
+          <input class="form-input" style="font-size:11px;padding:6px 10px;color:var(--sub)" placeholder="Observação (opcional)..."
+            value="${(p.obs||'').replace(/"/g,'&quot;')}" oninput="_draft[${i}].obs=this.value">
+        </div>
+        <button class="btn-del" style="margin-top:2px" onclick="draftDelete(${i})">✕</button>
+      </div>`;
+    }).join('');
+}
+
+function draftToggle(i){
+  _draft[i].status=(_draft[i].status||'ativo')==='ativo'?'inativo':'ativo';
+  renderPostList();
+}
+function draftDelete(i){
+  if(!confirm('Remover este post?'))return;
+  _draft.splice(i,1);
+  renderPostList();
+}
+
+function draftAdd(){
   const nome=R('f-nome').value.trim();
   const link=R('f-link').value.trim();
+  if(!nome||!link){alert('Preencha pelo menos nome e link.');return;}
   const inv =parseFloat(R('f-inv').value)||0;
   const saldo=parseInt(R('f-seg').value)||0;
   const dia =parseFloat(R('f-dia').value)||0;
-  if(!nome||!link){alert('Preencha pelo menos nome e link.');return;}
-  const posts=getPosts();
-  posts.push({nome,link,inv,saldo,dia});
-  setPosts(posts);
-  R('f-nome').value='';R('f-link').value='';R('f-inv').value='';R('f-seg').value='';R('f-dia').value='';
+  const status=R('f-status').value||'ativo';
+  const obs=R('f-obs').value.trim();
+  _draft.push({nome,link,inv,saldo,dia,status,obs});
+  R('f-nome').value='';R('f-link').value='';R('f-inv').value='';
+  R('f-seg').value='';R('f-dia').value='';R('f-obs').value='';
+  R('f-status').value='ativo';
   renderPostList();
-  renderPostsTable();
-}
-
-function deletePost(idx){
-  if(!confirm('Remover este post?'))return;
-  const posts=getPosts();
-  posts.splice(idx,1);
-  setPosts(posts);
-  renderPostList();
-  renderPostsTable();
 }
 
 function renderPostsTable(){
   const posts=getPosts();
   R('s-tbody').innerHTML=posts.map(p=>{
+    const ativo=(p.status||'ativo')==='ativo';
     const cps=p.saldo>0&&p.inv>0?p.inv/p.saldo:0;
-    return`<tr>
-      <td class="tnm" title="${p.nome}">${postName(p.nome)}</td>
+    const obsHtml=p.obs?`<br><span style="font-size:10px;color:var(--sub);font-style:italic">${p.obs}</span>`:'';
+    return`<tr class="${ativo?'':'inativo'}">
+      <td class="tnm" title="${p.nome}">${postName(p.nome)}${obsHtml}</td>
       <td class="tr"><strong style="color:var(--purple)">${fmtN(p.saldo)}</strong></td>
       <td class="tr" style="color:var(--green)">+${fmtN(p.saldo)}</td>
       <td class="tr">${fmtR(p.inv)}</td>
