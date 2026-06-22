@@ -540,8 +540,11 @@ function renderPostsTable(){
     const ativo=(p.status||'ativo')==='ativo';
     const cps=p.saldo>0&&p.inv>0?p.inv/p.saldo:0;
     const obsHtml=p.obs?`<br><span style="font-size:10px;color:var(--sub);font-style:italic">${p.obs}</span>`:'';
+    const statusPill=ativo
+      ?`<span class="pill-ativo" style="cursor:default;font-size:9px;padding:1px 7px;margin-left:6px">Ativo</span>`
+      :`<span class="pill-inativo" style="cursor:default;font-size:9px;padding:1px 7px;margin-left:6px">Inativo</span>`;
     return`<tr class="${ativo?'':'inativo'}">
-      <td class="tnm" title="${p.nome}">${postName(p.nome)}${obsHtml}</td>
+      <td class="tnm" title="${p.nome}">${postName(p.nome)}${statusPill}${obsHtml}</td>
       <td class="tr"><strong style="color:var(--purple)">${fmtN(p.saldo)}</strong></td>
       <td class="tr" style="color:var(--green)">+${fmtN(p.saldo)}</td>
       <td class="tr">${fmtR(p.inv)}</td>
