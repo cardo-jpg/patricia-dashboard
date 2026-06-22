@@ -762,6 +762,18 @@ function renderOrg(rows){
   </tr>`).join('');
 }
 
+// ── EBOOK URLs ────────────────────────────────────────────────
+function editEbUrl(nome){
+  const urls=JSON.parse(localStorage.getItem('pati_eb_urls')||'{}');
+  const atual=urls[nome]||'';
+  const novo=prompt(`Link do anúncio — ${nome}:`, atual);
+  if(novo===null)return;
+  if(novo.trim()) urls[nome]=novo.trim(); else delete urls[nome];
+  localStorage.setItem('pati_eb_urls',JSON.stringify(urls));
+  renderEbook(_lastEbRows);
+}
+let _lastEbRows=[];
+
 // ── EBOOK ─────────────────────────────────────────────────────
 const EB_SHEET_ID = '1MNmYN39x8FB8BGBQocZGAL8kDGQ4WZ5B7uAy5KazJ1c';
 const EB_GVT      = `https://docs.google.com/spreadsheets/d/${EB_SHEET_ID}/gviz/tq?tqx=out:csv`;
@@ -793,6 +805,7 @@ function ebMapCriativo(code){
 }
 
 function renderEbook(rows){
+  _lastEbRows=rows;
   if(!rows.length){
     R('ebk-tbody').innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--sub);padding:24px">Sem dados a partir de 21/06</td></tr>';
     return;
@@ -856,8 +869,13 @@ function renderEbook(rows){
   });
 
   // Distribuição por Criativo donut
+  const ebUrls=JSON.parse(localStorage.getItem('pati_eb_urls')||'{}');
   const criMap={};
-  rows.forEach(r=>{if(!criMap[r.criativo])criMap[r.criativo]={inv:0,leads:0,clicks:0,imp:0,url:r.url};criMap[r.criativo].inv+=r.inv;criMap[r.criativo].leads+=r.leads;criMap[r.criativo].clicks+=r.clicks;criMap[r.criativo].imp+=r.imp;});
+  rows.forEach(r=>{
+    if(!criMap[r.criativo])criMap[r.criativo]={inv:0,leads:0,clicks:0,imp:0,url:r.url||ebUrls[r.criativo]||''};
+    if(r.url&&!criMap[r.criativo].url)criMap[r.criativo].url=r.url;
+    criMap[r.criativo].inv+=r.inv;criMap[r.criativo].leads+=r.leads;criMap[r.criativo].clicks+=r.clicks;criMap[r.criativo].imp+=r.imp;
+  });
   const criNames=Object.keys(criMap).filter(n=>criMap[n].inv>0);
   if(ch['ebk-donut']){ch['ebk-donut'].destroy();delete ch['ebk-donut'];}
   ch['ebk-donut']=new Chart(R('ebk-chart-donut').getContext('2d'),{
@@ -906,7 +924,9 @@ function renderEbook(rows){
       <td class="td-r">${c.leads||'—'}</td>
       <td class="td-r">${cplN!==null?fmtR(cplN):'—'}</td>
       <td>${badge}</td>
-      <td>${c.url?`<a href="${c.url}" target="_blank" class="ad-btn">🔗 Ver Ad</a>`:'—'}</td>
+      <td style="white-space:nowrap">${c.url?`<a href="${c.url}" target="_blank" class="ad-btn">🔗 Ver Ad</a> `:''}
+        <button class="ad-btn" style="background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.25);color:var(--purple)" onclick="editEbUrl('${nome.replace(/'/g,"\\'")}')">✏️</button>
+      </td>
     </tr>`;
   }).join('');
 }
