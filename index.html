@@ -106,6 +106,7 @@
     .post-list-obs{font-size:11px;color:var(--sub);font-style:italic;margin-top:2px;}
     .pill-ativo{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(0,229,160,.12);color:var(--green);cursor:pointer;user-select:none;border:1px solid rgba(0,229,160,.25);}
     .pill-inativo{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(255,107,107,.1);color:var(--red);cursor:pointer;user-select:none;border:1px solid rgba(255,107,107,.2);}
+    .pill-subir{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(255,209,102,.12);color:var(--yellow);cursor:pointer;user-select:none;border:1px solid rgba(255,209,102,.25);}
     .modal-sep{border:none;border-top:1px solid var(--border);margin:20px 0 16px;}
     .modal-sub{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;}
     tr.inativo td{opacity:.4;}
@@ -286,6 +287,7 @@
       <select class="form-input" id="f-status">
         <option value="ativo">Ativo</option>
         <option value="inativo">Inativo</option>
+        <option value="subir">Subir</option>
       </select>
     </div>
     <div class="form-row">
@@ -492,13 +494,12 @@ function renderPostList(){
   R('post-list').innerHTML=_draft.length===0
     ?'<p style="font-size:12px;color:var(--sub);text-align:center;padding:16px 0">Nenhum post cadastrado</p>'
     :_draft.map((p,i)=>{
-      const ativo=(p.status||'ativo')==='ativo';
       const shortName=p.nome.replace(/^(CARROSSEL|REELS)\s*-\s*/,'');
       return`<div class="post-list-item">
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
             <span class="post-list-name">${shortName}</span>
-            <span class="${ativo?'pill-ativo':'pill-inativo'}" onclick="draftToggle(${i})" title="Clique para alternar">${ativo?'Ativo':'Inativo'}</span>
+            ${statusPillHtml(p.status,true,i)}
           </div>
           <input class="form-input" style="font-size:11px;padding:6px 10px;color:var(--sub)" placeholder="Observação (opcional)..."
             value="${(p.obs||'').replace(/"/g,'&quot;')}" oninput="_draft[${i}].obs=this.value">
@@ -509,8 +510,20 @@ function renderPostList(){
 }
 
 function draftToggle(i){
-  _draft[i].status=(_draft[i].status||'ativo')==='ativo'?'inativo':'ativo';
+  const cycle={ativo:'inativo',inativo:'subir',subir:'ativo'};
+  _draft[i].status=cycle[_draft[i].status||'ativo']||'ativo';
   renderPostList();
+}
+function statusPillHtml(status,clickable,idx){
+  const map={
+    ativo: ['pill-ativo','Ativo'],
+    inativo: ['pill-inativo','Inativo'],
+    subir: ['pill-subir','📤 Subir'],
+  };
+  const[cls,label]=map[status||'ativo']||map['ativo'];
+  const style='cursor:default;font-size:9px;padding:1px 7px;';
+  const onclick=clickable?`onclick="draftToggle(${idx})" title="Clique para alternar"`:'';
+  return`<span class="${cls}" style="${clickable?'font-size:10px;padding:2px 9px;':style}" ${onclick}>${label}</span>`;
 }
 function draftDelete(i){
   if(!confirm('Remover este post?'))return;
@@ -540,9 +553,7 @@ function renderPostsTable(){
     const ativo=(p.status||'ativo')==='ativo';
     const cps=p.saldo>0&&p.inv>0?p.inv/p.saldo:0;
     const obsHtml=p.obs?`<br><span style="font-size:10px;color:var(--sub);font-style:italic">${p.obs}</span>`:'';
-    const statusPill=ativo
-      ?`<span class="pill-ativo" style="cursor:default;font-size:9px;padding:1px 7px;margin-left:6px">Ativo</span>`
-      :`<span class="pill-inativo" style="cursor:default;font-size:9px;padding:1px 7px;margin-left:6px">Inativo</span>`;
+    const statusPill=statusPillHtml(p.status,false,0);
     return`<tr class="${ativo?'':'inativo'}">
       <td style="max-width:280px">
         <div style="display:flex;align-items:center;gap:6px">
