@@ -86,6 +86,25 @@
     .mf-btn{padding:5px 13px;font-size:11px;font-weight:600;color:var(--sub);background:var(--card);border:1px solid var(--border);border-radius:20px;cursor:pointer;transition:all .15s;}
     .mf-btn:hover{color:var(--text);border-color:var(--purple);}
     .mf-btn.active{background:rgba(167,139,250,.15);color:var(--purple);border-color:var(--purple);}
+    /* Posts modal */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center;}
+    .modal-overlay.open{display:flex;}
+    .modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+    .modal-title{font-size:14px;font-weight:700;margin-bottom:20px;}
+    .form-row{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
+    .form-label{font-size:10px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.8px;}
+    .form-input{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text);outline:none;width:100%;font-family:inherit;}
+    .form-input:focus{border-color:var(--purple);}
+    .form-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+    .btn-purple{background:rgba(167,139,250,.15);border:1px solid var(--purple);color:var(--purple);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;}
+    .btn-purple:hover{background:rgba(167,139,250,.28);}
+    .btn-ghost{background:none;border:1px solid var(--border);color:var(--sub);border-radius:8px;padding:9px 18px;font-size:12px;font-weight:700;cursor:pointer;}
+    .btn-del{background:rgba(255,107,107,.1);border:none;color:var(--red);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;}
+    .btn-edit-posts{background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.3);color:var(--purple);border-radius:8px;padding:4px 12px;font-size:10px;font-weight:700;cursor:pointer;}
+    .post-list-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);gap:12px;}
+    .post-list-name{font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);}
+    .modal-sep{border:none;border-top:1px solid var(--border);margin:20px 0 16px;}
+    .modal-sub{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;}
   </style>
 </head>
 <body>
@@ -137,7 +156,7 @@
   <div class="tbl-box">
     <div class="tbl-head" style="justify-content:space-between">
       <span class="tbl-head-title">Rastreamento de Seguidores · Posts Ativos</span>
-      <span style="font-size:10px;color:var(--sub);font-weight:500">Planilha manual</span>
+      <button class="btn-edit-posts" onclick="openPostsModal()">✏️ Gerenciar posts</button>
     </div>
     <div class="tbl-scroll">
       <table>
@@ -228,13 +247,47 @@
 </div>
 </div>
 
+<!-- ══ MODAL POSTS ════════════════════════════════════════════ -->
+<div class="modal-overlay" id="posts-modal" onclick="if(event.target===this)closePostsModal()">
+  <div class="modal-box">
+    <p class="modal-title">✏️ Gerenciar Posts Ativos</p>
+    <div id="post-list"></div>
+    <hr class="modal-sep">
+    <p class="modal-sub">Adicionar Post</p>
+    <div class="form-row">
+      <label class="form-label">Nome do Post</label>
+      <input class="form-input" id="f-nome" placeholder="Ex: CARROSSEL - Renda extra que eu faria...">
+    </div>
+    <div class="form-row">
+      <label class="form-label">Link do Instagram</label>
+      <input class="form-input" id="f-link" placeholder="https://www.instagram.com/p/...">
+    </div>
+    <div class="form-grid3">
+      <div class="form-row">
+        <label class="form-label">Investimento (R$)</label>
+        <input class="form-input" id="f-inv" placeholder="0.00" type="number" step="0.01" min="0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Seguidores Ganhos</label>
+        <input class="form-input" id="f-seg" placeholder="0" type="number" min="0">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Valor Diário (R$)</label>
+        <input class="form-input" id="f-dia" placeholder="0" type="number" step="0.01" min="0">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn-purple" onclick="addPost()">+ Adicionar</button>
+      <button class="btn-ghost" onclick="closePostsModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const SHEET_ID      = '1U0-RxvDoIbCI7UNC76hXsRfryNV-Y3GX0x-44KxdVFk';
 const DAILY_SHEET_ID= '1FqaWfL76VcYKeYGVbqO7qwi3EUqwj7YaLEL23Dlqgd8';
-const POSTS_SHEET_ID= '1e5lZGVxm5itrgQZ2GJhL6gyyZGoyVvsK';
 const GVT  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 const GVT2 = `https://docs.google.com/spreadsheets/d/${DAILY_SHEET_ID}/gviz/tq?tqx=out:csv`;
-const GVT3 = `https://docs.google.com/spreadsheets/d/${POSTS_SHEET_ID}/gviz/tq?tqx=out:csv`;
 const C = {cyan:'#00c6ff',green:'#00e5a0',yellow:'#ffd166',red:'#ff6b6b',purple:'#a78bfa',orange:'#f97316',pink:'#f472b6',blue:'#60a5fa',grid:'rgba(30,48,69,0.7)'};
 const PAL = [C.purple,C.cyan,C.green,C.orange,C.pink,C.yellow,C.blue,'#818cf8','#34d399','#fb923c'];
 const ch={};
@@ -378,29 +431,82 @@ window.setDailyMonth=function(mKey,btn){
 };
 
 // ── Parser aba Pati → filtra linhas Verdadeiro com link Instagram ──
-function parsePatiPosts(csvTxt){
-  if(!csvTxt)return[];
-  const lines=csvTxt.trim().split('\n');
-  const posts=[];
-  for(const line of lines){
-    const c=csvLine(line).map(v=>v.replace(/^"|"$/g,'').trim());
-    const ativo=(c[1]||'').toLowerCase();
-    const link =(c[3]||'');
-    if(ativo==='verdadeiro'&&link.includes('instagram.com')){
-      const nome =c[4]||'';
-      const inv  =money(c[5]||'');
-      // saldo pode vir como "1,332" (formato BR) ou "1332"
-      const saldoRaw=(c[6]||'').replace(/\./g,'').replace(',','.');
-      const saldo=parseInt(saldoRaw)||0;
-      const cps  =money(c[7]||'');
-      if(link)posts.push({nome,link,inv,saldo,cps});
-    }
-  }
-  return posts;
+// ── POSTS (localStorage) ──────────────────────────────────────
+const POSTS_KEY = 'pati_posts_v1';
+const DEFAULT_POSTS = [
+  {nome:'CARROSSEL - Renda extra que eu faria essa semana, se eu nao estivesse num retiro no pais de gales - vagas - CTA SRI', link:'https://www.instagram.com/p/DVCSqL8EQdr/?igsh=c2ttN3pmM2ZxcW95', inv:1308.69, saldo:1555, dia:25},
+  {nome:'CARROSSEL - Você foi ensinada CLT ou empreender - CTA SRI', link:'https://www.instagram.com/p/DYNmB2rkYRI/', inv:346.11, saldo:272, dia:12},
+  {nome:'CARROSSEL - Trabalho remoto não é a mesma coisa que trabalho 100% remoto - CTA SRI (Workshop)', link:'https://www.instagram.com/p/DYcPWK9jDYi/', inv:346.98, saldo:330, dia:12},
+  {nome:'CARROSSEL - Projetos que eu faria na UPWORK para construir renda em dolar - CTA SRI', link:'https://www.instagram.com/p/DYedqpSgKyJ/', inv:172.11, saldo:120, dia:12},
+  {nome:'CARROSSEL - Coisas que agora são normais para mim porque faço dinheiro como freelancert - CTA SRI', link:'https://www.instagram.com/p/DYxiavjmUxy/', inv:44.11, saldo:35, dia:8},
+  {nome:'CARROSSEL - Se você esta infeliz com seu trabalho peça demissão - CTA SRI', link:'https://www.instagram.com/p/DY7cQ3PgHfd/', inv:64.98, saldo:50, dia:8},
+  {nome:'REELS - Essa é a milha filha - CTA SRI', link:'https://www.instagram.com/p/DZR6qscAkuJ/', inv:21.00, saldo:55, dia:6},
+];
+
+function getPosts(){
+  try{ const s=localStorage.getItem(POSTS_KEY); return s?JSON.parse(s):[...DEFAULT_POSTS]; }
+  catch(e){ return[...DEFAULT_POSTS]; }
+}
+function setPosts(posts){ localStorage.setItem(POSTS_KEY,JSON.stringify(posts)); }
+
+function openPostsModal(){
+  renderPostList();
+  R('posts-modal').classList.add('open');
+}
+function closePostsModal(){ R('posts-modal').classList.remove('open'); }
+
+function renderPostList(){
+  const posts=getPosts();
+  R('post-list').innerHTML=posts.length===0
+    ?'<p style="font-size:12px;color:var(--sub);text-align:center;padding:16px 0">Nenhum post cadastrado</p>'
+    :posts.map((p,i)=>`<div class="post-list-item">
+        <span class="post-list-name" title="${p.nome}">${p.nome.replace(/^(CARROSSEL|REELS)\s*-\s*/,'')}</span>
+        <button class="btn-del" onclick="deletePost(${i})">✕</button>
+      </div>`).join('');
+}
+
+function addPost(){
+  const nome=R('f-nome').value.trim();
+  const link=R('f-link').value.trim();
+  const inv =parseFloat(R('f-inv').value)||0;
+  const saldo=parseInt(R('f-seg').value)||0;
+  const dia =parseFloat(R('f-dia').value)||0;
+  if(!nome||!link){alert('Preencha pelo menos nome e link.');return;}
+  const posts=getPosts();
+  posts.push({nome,link,inv,saldo,dia});
+  setPosts(posts);
+  R('f-nome').value='';R('f-link').value='';R('f-inv').value='';R('f-seg').value='';R('f-dia').value='';
+  renderPostList();
+  renderPostsTable();
+}
+
+function deletePost(idx){
+  if(!confirm('Remover este post?'))return;
+  const posts=getPosts();
+  posts.splice(idx,1);
+  setPosts(posts);
+  renderPostList();
+  renderPostsTable();
+}
+
+function renderPostsTable(){
+  const posts=getPosts();
+  R('s-tbody').innerHTML=posts.map(p=>{
+    const cps=p.saldo>0&&p.inv>0?p.inv/p.saldo:0;
+    return`<tr>
+      <td class="tnm" title="${p.nome}">${postName(p.nome)}</td>
+      <td class="tr"><strong style="color:var(--purple)">${fmtN(p.saldo)}</strong></td>
+      <td class="tr" style="color:var(--green)">+${fmtN(p.saldo)}</td>
+      <td class="tr">${fmtR(p.inv)}</td>
+      <td class="tr" style="color:var(--cyan)">${cps>0?fmtR(cps):'—'}</td>
+      <td class="tr" style="color:var(--yellow)">—</td>
+      <td>${p.link?`<a href="${p.link}" target="_blank" class="lnk">🔗 Ver post</a>`:'—'}</td>
+    </tr>`;
+  }).join('');
 }
 
 // ── IMPULSIONADOS ─────────────────────────────────────────────
-function renderImp(dailyRows, postsData){
+function renderImp(dailyRows){
   // Processar daily rows
   _allDailyRows=dailyRows.map(r=>{
     const pd=parseDailyDate(col(r,'DATA','Data'));
@@ -430,16 +536,7 @@ function renderImp(dailyRows, postsData){
   if(lastBtn)lastBtn.classList.add('active');
   renderDailyView(lastMKey||'all');
 
-  // Tabela de posts ativos (planilha multi-cliente, seção Pati, Verdadeiro)
-  R('s-tbody').innerHTML=postsData.map(p=>`<tr>
-    <td class="tnm" title="${p.nome}">${postName(p.nome)}</td>
-    <td class="tr"><strong style="color:var(--purple)">${fmtN(p.saldo)}</strong></td>
-    <td class="tr" style="color:var(--green)">+${fmtN(p.saldo)}</td>
-    <td class="tr">${fmtR(p.inv)}</td>
-    <td class="tr" style="color:var(--cyan)">${p.cps>0?fmtR(p.cps):'—'}</td>
-    <td class="tr" style="color:var(--yellow)">—</td>
-    <td>${p.link?`<a href="${p.link}" target="_blank" class="lnk">🔗 Ver post</a>`:'—'}</td>
-  </tr>`).join('');
+  renderPostsTable();
 }
 
 // ── ORGÂNICO ──────────────────────────────────────────────────
@@ -507,16 +604,14 @@ function renderOrg(rows){
 async function load(){
   const ts=Date.now();
   try{
-    const[dTxt,pTxt,oTxt]=await Promise.all([
+    const[dTxt,oTxt]=await Promise.all([
       fetch(`${GVT2}&sheet=Dados&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
-      fetch(`${GVT3}&gid=1950155209&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()).catch(()=>''),
       fetch(`${GVT}&gid=1387861195&_=${ts}`,{cache:'no-cache'}).then(r=>r.text()),
     ]);
     const dailyRows=parseCSV(dTxt);
-    const postsData=pTxt?parsePatiPosts(pTxt):[];
     const orgRows  =parseCSV(oTxt).filter(r=>r['Data']);
 
-    renderImp(dailyRows,postsData);
+    renderImp(dailyRows);
     renderOrg(orgRows);
 
     const actives=_allDailyRows.filter(r=>r._inv>0||r._seg>0);
