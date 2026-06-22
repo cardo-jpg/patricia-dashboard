@@ -111,7 +111,29 @@
     .modal-sub{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;}
     tr.inativo td{opacity:.4;}
     tr.inativo .tnm::after{content:' (inativo)';font-size:10px;color:var(--red);}
-    /* Ebook tab extras */
+    /* Ebook — SRI-style classes */
+    .sec-eb{font-size:12px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--sub);margin-bottom:14px;margin-top:24px;}
+    .kpi-grid-eb{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:24px;}
+    .kpi-eb{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 14px 12px;}
+    .kpi-eb.c-cyan{border-left:3px solid var(--cyan);}
+    .kpi-eb.c-green{border-left:3px solid var(--green);}
+    .kpi-eb.c-yellow{border-left:3px solid var(--yellow);}
+    .kpi-eb.c-purple{border-left:3px solid var(--purple);}
+    .kpi-eb.c-orange{border-left:3px solid var(--orange);}
+    .kpi-eb-lbl{font-size:12px;color:var(--sub);font-weight:500;letter-spacing:.5px;margin-bottom:8px;}
+    .kpi-eb-val{font-size:24px;font-weight:800;line-height:1;}
+    .kpi-eb-val.cyan{color:var(--cyan);} .kpi-eb-val.green{color:var(--green);} .kpi-eb-val.yellow{color:var(--yellow);} .kpi-eb-val.purple{color:var(--purple);} .kpi-eb-val.white{color:var(--text);} .kpi-eb-val.orange{color:var(--orange);}
+    .kpi-eb-note{font-size:12px;color:var(--sub);margin-top:4px;}
+    .row2-eb{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:18px;}
+    .chart-card-eb{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 18px 14px;min-width:0;overflow:hidden;}
+    .chart-ttl-eb{font-size:15px;font-weight:700;margin-bottom:2px;}
+    .chart-sub-eb{font-size:12px;color:var(--sub);margin-bottom:14px;}
+    .chart-wrap-eb{position:relative;}
+    .h240-eb{height:240px;} .h260-eb{height:260px;}
+    .mini-kpi-eb{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+    .mini-kpi-eb-lbl{font-size:11px;color:var(--sub);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
+    .mini-kpi-eb-val{font-size:20px;font-weight:800;}
+    .tbl-card-eb{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:10px;overflow-x:auto;}
     .pill-g{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25);}
     .pill-r{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(255,107,107,.1);color:var(--red);border:1px solid rgba(255,107,107,.2);}
     .pill-b{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(122,144,168,.1);color:var(--sub);border:1px solid rgba(122,144,168,.2);}
@@ -264,64 +286,65 @@
 <!-- ══ EBOOK ══════════════════════════════════════════════════ -->
 <div id="panel-ebook" class="tab-panel">
 <div class="container">
-  <p class="sec-title">Ebook · Facebook Ads · a partir de 21/06</p>
-  <div class="kpi-row">
-    <div class="kpi k-orange"><p class="kpi-lbl">Investido</p><p class="kpi-val co" id="ebk-invest">—</p><p class="kpi-note" id="ebk-invest-n">período</p></div>
-    <div class="kpi k-green"><p class="kpi-lbl">Leads</p><p class="kpi-val cg" id="ebk-leads">—</p><p class="kpi-note" id="ebk-leads-n">período</p></div>
-    <div class="kpi k-cyan"><p class="kpi-lbl">CPL</p><p class="kpi-val cc" id="ebk-cpl">—</p><p class="kpi-note">custo por lead</p></div>
-    <div class="kpi k-yellow"><p class="kpi-lbl">Cliques</p><p class="kpi-val cy" id="ebk-clicks">—</p><p class="kpi-note" id="ebk-cpc-n">CPC —</p></div>
-    <div class="kpi k-purple"><p class="kpi-lbl">Impressões</p><p class="kpi-val cv" id="ebk-imp">—</p><p class="kpi-note" id="ebk-ctr-n">CTR —</p></div>
-    <div class="kpi k-pink"><p class="kpi-lbl">CPM</p><p class="kpi-val cp" id="ebk-cpm">—</p><p class="kpi-note">custo por mil impressões</p></div>
+  <p class="sec-eb" style="margin-top:22px">Visão Geral · Facebook Ebook · a partir de 21/06</p>
+  <div class="kpi-grid-eb">
+    <div class="kpi-eb c-cyan"><p class="kpi-eb-lbl">Investido</p><p class="kpi-eb-val cyan" id="ebk-invest">—</p><p class="kpi-eb-note" id="ebk-invest-n">—</p></div>
+    <div class="kpi-eb c-green"><p class="kpi-eb-lbl">Leads</p><p class="kpi-eb-val green" id="ebk-leads">—</p><p class="kpi-eb-note" id="ebk-leads-n">—</p></div>
+    <div class="kpi-eb c-cyan"><p class="kpi-eb-lbl">CPL</p><p class="kpi-eb-val cyan" id="ebk-cpl">—</p><p class="kpi-eb-note">Custo por Lead</p></div>
+    <div class="kpi-eb c-yellow"><p class="kpi-eb-lbl">Cliques</p><p class="kpi-eb-val yellow" id="ebk-clicks">—</p><p class="kpi-eb-note">Link Clicks</p></div>
+    <div class="kpi-eb c-cyan"><p class="kpi-eb-lbl">CPC</p><p class="kpi-eb-val white" id="ebk-cpc">—</p><p class="kpi-eb-note">Custo por Clique</p></div>
+    <div class="kpi-eb c-purple"><p class="kpi-eb-lbl">Impressões</p><p class="kpi-eb-val purple" id="ebk-imp">—</p><p class="kpi-eb-note">Total</p></div>
+    <div class="kpi-eb c-cyan"><p class="kpi-eb-lbl">CTR</p><p class="kpi-eb-val white" id="ebk-ctr">—</p><p class="kpi-eb-note">Taxa de clique</p></div>
   </div>
 
-  <div class="chart-row">
-    <div class="chart-box">
-      <p class="chart-box-ttl">Leads por Dia · CPL</p>
-      <p class="chart-box-sub">Barras = leads captados · Linha = CPL diário (R$)</p>
-      <div class="cw h280"><canvas id="ebk-chart-day"></canvas></div>
+  <p class="sec-eb">Performance Diária</p>
+  <div class="row2-eb">
+    <div class="chart-card-eb">
+      <p class="chart-ttl-eb">Leads por Dia · CPL</p>
+      <p class="chart-sub-eb">Barras = leads captados · Linha = CPL diário (R$)</p>
+      <div class="chart-wrap-eb h260-eb"><canvas id="ebk-chart-day"></canvas></div>
     </div>
-    <div class="chart-box">
-      <p class="chart-box-ttl">Distribuição por Criativo</p>
-      <p class="chart-box-sub">% do investimento no período</p>
-      <div class="cw h280"><canvas id="ebk-chart-donut"></canvas></div>
+    <div class="chart-card-eb">
+      <p class="chart-ttl-eb">Distribuição por Criativo</p>
+      <p class="chart-sub-eb">% do investimento no período</p>
+      <div class="chart-wrap-eb h260-eb"><canvas id="ebk-chart-donut"></canvas></div>
     </div>
   </div>
 
-  <div class="chart-row">
-    <div class="chart-box">
-      <p class="chart-box-ttl">CPM · CTR por Dia</p>
-      <p class="chart-box-sub">Evolução diária das métricas de qualidade</p>
-      <div class="cw h220"><canvas id="ebk-chart-quality"></canvas></div>
+  <p class="sec-eb">Métricas de Qualidade</p>
+  <div class="row2-eb">
+    <div class="chart-card-eb">
+      <p class="chart-ttl-eb">CPM · CTR por Dia</p>
+      <p class="chart-sub-eb">Evolução diária das métricas de qualidade</p>
+      <div class="chart-wrap-eb h240-eb"><canvas id="ebk-chart-quality"></canvas></div>
     </div>
-    <div class="chart-box">
-      <p class="chart-box-ttl">Resumo do Período</p>
-      <p class="chart-box-sub">Totais acumulados</p>
-      <div style="padding-top:8px">
-        <p class="kpi-lbl" style="margin-bottom:4px">CPM</p><p class="kpi-val co" id="ebk-sum-cpm" style="font-size:20px;margin-bottom:14px">—</p>
-        <p class="kpi-lbl" style="margin-bottom:4px">CTR MÉDIO</p><p class="kpi-val cc" id="ebk-sum-ctr" style="font-size:20px;margin-bottom:14px">—</p>
-        <p class="kpi-lbl" style="margin-bottom:4px">CPC MÉDIO</p><p class="kpi-val cy" id="ebk-sum-cpc" style="font-size:20px">—</p>
+    <div class="chart-card-eb">
+      <p class="chart-ttl-eb">Resumo do Período</p>
+      <p class="chart-sub-eb">Médias calculadas sobre o período</p>
+      <div style="display:grid;gap:10px;margin-top:4px">
+        <div class="mini-kpi-eb"><p class="mini-kpi-eb-lbl">CPM</p><p class="mini-kpi-eb-val" style="color:var(--orange)" id="ebk-sum-cpm">—</p></div>
+        <div class="mini-kpi-eb"><p class="mini-kpi-eb-lbl">CTR Médio</p><p class="mini-kpi-eb-val" style="color:var(--cyan)" id="ebk-sum-ctr">—</p></div>
+        <div class="mini-kpi-eb"><p class="mini-kpi-eb-lbl">CPC Médio</p><p class="mini-kpi-eb-val" style="color:var(--yellow)" id="ebk-sum-cpc">—</p></div>
       </div>
     </div>
   </div>
 
-  <p class="sec-title" style="margin-top:8px">Detalhamento por Criativo</p>
-  <div class="tbl-box">
-    <div class="tbl-scroll">
-      <table>
-        <thead><tr>
-          <th>Criativo</th>
-          <th class="td-r">Investido</th>
-          <th class="td-r">Impressões</th>
-          <th class="td-r">Cliques</th>
-          <th class="td-r">CTR</th>
-          <th class="td-r">Leads</th>
-          <th class="td-r">CPL</th>
-          <th>Status</th>
-          <th>Anúncio</th>
-        </tr></thead>
-        <tbody id="ebk-tbody"></tbody>
-      </table>
-    </div>
+  <p class="sec-eb">Detalhamento por Criativo</p>
+  <div class="tbl-card-eb">
+    <table>
+      <thead><tr>
+        <th>Criativo</th>
+        <th class="td-r">Investido</th>
+        <th class="td-r">Impressões</th>
+        <th class="td-r">Cliques</th>
+        <th class="td-r">CTR</th>
+        <th class="td-r">Leads</th>
+        <th class="td-r">CPL</th>
+        <th>Status</th>
+        <th>Anúncio</th>
+      </tr></thead>
+      <tbody id="ebk-tbody"></tbody>
+    </table>
   </div>
 </div>
 </div>
@@ -785,15 +808,14 @@ function renderEbook(rows){
   const cpm  = totImp>0?totInv/totImp*1000:0;
 
   R('ebk-invest').textContent=fmtR(totInv);
+  R('ebk-invest-n').textContent=rows.length+' dias com dados';
   R('ebk-leads').textContent=totLeads||'—';
+  R('ebk-leads-n').textContent='leads captados';
   R('ebk-cpl').textContent=cpl>0?fmtR(cpl):'—';
   R('ebk-clicks').textContent=totClicks;
-  R('ebk-invest-n').textContent=rows.length+' dias com dados';
-  R('ebk-leads-n').textContent='leads captados';
-  R('ebk-cpc-n').textContent='CPC '+fmtR(cpc);
+  R('ebk-cpc').textContent=fmtR(cpc);
   R('ebk-imp').textContent=fmtN(totImp);
-  R('ebk-ctr-n').textContent='CTR '+ctr.toFixed(2)+'%';
-  R('ebk-cpm').textContent=fmtR(cpm);
+  R('ebk-ctr').textContent=ctr.toFixed(2)+'%';
   R('ebk-sum-cpm').textContent=fmtR(cpm);
   R('ebk-sum-ctr').textContent=ctr.toFixed(2)+'%';
   R('ebk-sum-cpc').textContent=fmtR(cpc);
@@ -858,8 +880,8 @@ function renderEbook(rows){
       plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,color:'#f0f4f8'}}},
       scales:{
         x:{grid:{color:C.grid},ticks:{color:'#7a90a8',font:{size:10}}},
-        yCPM:{position:'left',grid:{color:C.grid},ticks:{callback:v=>'R$'+v,color:C.orange}},
-        yCTR:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>v+'%',color:C.cyan}},
+        yCPM:{position:'left',grid:{color:C.grid},ticks:{callback:v=>'R$ '+v.toFixed(2).replace('.',','),color:C.orange}},
+        yCTR:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>v.toFixed(2)+'%',color:C.cyan}},
       }
     }
   });
