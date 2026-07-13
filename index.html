@@ -554,6 +554,9 @@ window.setDailyMonth=function(mKey,btn){
 // ── Parser aba Pati → filtra linhas Verdadeiro com link Instagram ──
 // ── POSTS (localStorage) ──────────────────────────────────────
 const POSTS_KEY = 'pati_posts_v1';
+const POSTS_API = 'https://script.google.com/macros/s/AKfycbykJBdJvoCknUWl3b5sQmfBp45YgmtIDx4QcJLjR4jsAL_784WfBZKW5yNenGVoaOgqNQ/exec';
+const POSTS_PROFILE = 'pati';
+let _sheetPosts = null;
 const DEFAULT_POSTS = [
   {nome:'CARROSSEL - Renda extra que eu faria essa semana, se eu nao estivesse num retiro no pais de gales - vagas - CTA SRI', link:'https://www.instagram.com/p/DVCSqL8EQdr/?igsh=c2ttN3pmM2ZxcW95', inv:1308.69, saldo:1555, dia:25, status:'ativo', obs:''},
   {nome:'CARROSSEL - Você foi ensinada CLT ou empreender - CTA SRI', link:'https://www.instagram.com/p/DYNmB2rkYRI/', inv:346.11, saldo:272, dia:12, status:'ativo', obs:''},
@@ -565,10 +568,22 @@ const DEFAULT_POSTS = [
 ];
 
 function getPosts(){
+  if(_sheetPosts && _sheetPosts.length) return _sheetPosts;
   try{ const s=localStorage.getItem(POSTS_KEY); return s?JSON.parse(s):[...DEFAULT_POSTS]; }
   catch(e){ return[...DEFAULT_POSTS]; }
 }
 function setPosts(posts){ localStorage.setItem(POSTS_KEY,JSON.stringify(posts)); }
+function loadSheetPosts(){
+  if(!POSTS_API) return;
+  const cb='_pcb_'+Date.now();
+  const s=document.createElement('script');
+  const done=()=>{try{delete window[cb];}catch(e){}if(s.parentNode)s.parentNode.removeChild(s);clearTimeout(tm);};
+  const tm=setTimeout(done,12000);
+  window[cb]=(resp)=>{ if(resp&&resp.ok&&Array.isArray(resp.posts)){ _sheetPosts=resp.posts.map(x=>({nome:x.nome||'',link:x.link||'',inv:+x.inv||0,dia:+x.dia||0,saldo:+x.saldo||0,status:x.status||'ativo',obs:x.obs||''})); setPosts(_sheetPosts); renderPostsTable(); } done(); };
+  s.onerror=done;
+  s.src=POSTS_API+'?profile='+encodeURIComponent(POSTS_PROFILE)+'&callback='+cb+'&_='+Date.now();
+  document.head.appendChild(s);
+}
 
 let _draft=null;
 
@@ -581,11 +596,13 @@ function closePostsModal(){
   _draft=null;
   R('posts-modal').classList.remove('open');
 }
-function saveModal(){
-  setPosts(_draft);
+async function saveModal(){
+  const posts=_draft.slice();
+  setPosts(posts); _sheetPosts=posts;
   _draft=null;
   renderPostsTable();
   R('posts-modal').classList.remove('open');
+  if(POSTS_API){ try{ await fetch(POSTS_API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({profile:POSTS_PROFILE,posts})}); }catch(e){console.warn('sync posts',e);} }
 }
 
 function renderPostList(){
@@ -985,6 +1002,7 @@ async function load(){
   }
 }
 load();
+loadSheetPosts();
 </script>
 </body>
 </html>
