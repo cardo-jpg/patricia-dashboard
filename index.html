@@ -615,9 +615,21 @@ function renderPostList(){
       const shortName=p.nome.replace(/^(CARROSSEL|REELS)\s*-\s*/,'');
       return`<div class="post-list-item">
         <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
             <span class="post-list-name">${shortName}</span>
             ${statusPillHtml(p.status,true,i)}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <div>
+              <p style="font-size:10px;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Investimento (R$)</p>
+              <input class="form-input" style="font-size:12px;padding:6px 10px" type="number" step="0.01" min="0"
+                value="${p.inv||''}" oninput="_draft[${i}].inv=parseFloat(this.value)||0">
+            </div>
+            <div>
+              <p style="font-size:10px;color:var(--sub);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Seguidores Ganhos</p>
+              <input class="form-input" style="font-size:12px;padding:6px 10px" type="number" min="0"
+                value="${p.saldo||''}" oninput="_draft[${i}].saldo=parseInt(this.value)||0">
+            </div>
           </div>
           <input class="form-input" style="font-size:11px;padding:6px 10px;color:var(--sub)" placeholder="Observação (opcional)..."
             value="${(p.obs||'').replace(/"/g,'&quot;')}" oninput="_draft[${i}].obs=this.value">
