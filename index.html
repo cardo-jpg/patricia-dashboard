@@ -143,6 +143,10 @@
     .td-r{text-align:right;}
     .ad-btn{display:inline-flex;align-items:center;gap:5px;background:rgba(0,198,255,.08);border:1px solid rgba(0,198,255,.2);color:var(--cyan);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;text-decoration:none;}
     .ad-btn:hover{background:rgba(0,198,255,.15);}
+    .cloud-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(0,198,255,.08);border:1px solid rgba(0,198,255,.35);color:#00c6ff;border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap;}
+    .cloud-btn:hover{background:rgba(0,198,255,.18);}
+    .cloud-btn:disabled{opacity:.5;cursor:default;}
+    .h-right{display:flex;align-items:center;gap:10px;}
   </style>
 </head>
 <body>
@@ -155,7 +159,10 @@
       <div class="h-sub" id="h-sub">⏳ Carregando dados...</div>
     </div>
   </div>
-  <div class="badge"><span class="dot"></span>Ao vivo</div>
+  <div class="h-right">
+    <button class="cloud-btn" id="cloud-btn" onclick="pushToCloud()" title="Envia os posts deste navegador pra nuvem (aparecem em qualquer computador)">☁️ Enviar pra nuvem</button>
+    <div class="badge"><span class="dot"></span>Ao vivo</div>
+  </div>
 </header>
 
 <div class="tabs">
@@ -573,6 +580,30 @@ function getPosts(){
   catch(e){ return[...DEFAULT_POSTS]; }
 }
 function setPosts(posts){ localStorage.setItem(POSTS_KEY,JSON.stringify(posts)); }
+// Envia os posts DESTE navegador (localStorage) pra nuvem — assim aparecem em qualquer computador.
+let _pushing=false;
+async function pushToCloud(){
+  if(_pushing) return;
+  const btn=document.getElementById('cloud-btn');
+  let local=[];
+  try{ const s=localStorage.getItem(POSTS_KEY); local = s?JSON.parse(s):[]; }catch(e){ local=[]; }
+  if(!Array.isArray(local) || !local.length){
+    alert('☁️ Nenhum post salvo NESTE navegador para enviar.\n\nSe você cadastrou os posts em outro computador, abra a dashboard lá e clique em "Enviar pra nuvem".');
+    return;
+  }
+  if(!POSTS_API){ alert('Backend não configurado.'); return; }
+  _pushing=true;
+  if(btn){ btn.disabled=true; btn.textContent='☁️ Enviando…'; }
+  try{
+    await fetch(POSTS_API,{method:'POST',mode:'no-cors',body:JSON.stringify({profile:POSTS_PROFILE,posts:local})});
+    _sheetPosts=local; renderPostsTable();
+    alert('☁️ Enviado pra nuvem: '+local.length+' post(s).\n\nAguarde alguns segundos e abra em outro computador (Ctrl+Shift+R) para conferir.');
+  }catch(e){
+    alert('❌ Falha ao enviar pra nuvem. Verifique a conexão e tente de novo.');
+  }
+  if(btn){ btn.disabled=false; btn.textContent='☁️ Enviar pra nuvem'; }
+  _pushing=false;
+}
 function loadSheetPosts(){
   if(!POSTS_API) return;
   const cb='_pcb_'+Date.now();
