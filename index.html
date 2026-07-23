@@ -160,7 +160,7 @@
     </div>
   </div>
   <div class="h-right">
-    <button class="cloud-btn" id="cloud-btn" onclick="pushToCloud()" title="Envia os posts deste navegador pra nuvem (aparecem em qualquer computador)">☁️ Enviar pra nuvem</button>
+    <span class="cloud-btn" style="opacity:.75;cursor:default" title="Salva sozinho no servidor — aparece em todo computador">☁️ Salva automático</span>
     <div class="badge"><span class="dot"></span>Ao vivo</div>
   </div>
 </header>
@@ -405,8 +405,8 @@
     </div>
     <hr class="modal-sep">
     <div style="display:flex;gap:10px">
-      <button class="btn-purple" onclick="saveModal()" style="flex:1;justify-content:center">💾 Salvar</button>
-      <button class="btn-ghost" onclick="closePostsModal()">Cancelar</button>
+      <span id="save-status" style="flex:1;font-size:12px;font-weight:700;align-self:center">✓ salvo</span>
+      <button class="btn-purple" onclick="closePostsModal()" style="justify-content:center">✓ Fechar</button>
     </div>
   </div>
 </div>
@@ -561,7 +561,7 @@ window.setDailyMonth=function(mKey,btn){
 // ── Parser aba Pati → filtra linhas Verdadeiro com link Instagram ──
 // ── POSTS (localStorage) ──────────────────────────────────────
 const POSTS_KEY = 'pati_posts_v1';
-const POSTS_API = 'https://script.google.com/macros/s/AKfycbykJBdJvoCknUWl3b5sQmfBp45YgmtIDx4QcJLjR4jsAL_784WfBZKW5yNenGVoaOgqNQ/exec';
+const POSTS_API = 'https://sinapse.cardomarketing.com.br/api/hire-posts';  // servidor (Postgres, fonte única)
 const POSTS_PROFILE = 'pati';
 let _sheetPosts = null;
 const DEFAULT_POSTS = [
@@ -580,61 +580,65 @@ function getPosts(){
   catch(e){ return[...DEFAULT_POSTS]; }
 }
 function setPosts(posts){ localStorage.setItem(POSTS_KEY,JSON.stringify(posts)); }
-// Envia os posts DESTE navegador (localStorage) pra nuvem — assim aparecem em qualquer computador.
-let _pushing=false;
-async function pushToCloud(){
-  if(_pushing) return;
-  const btn=document.getElementById('cloud-btn');
-  let local=[];
-  try{ const s=localStorage.getItem(POSTS_KEY); local = s?JSON.parse(s):[]; }catch(e){ local=[]; }
-  if(!Array.isArray(local) || !local.length){
-    alert('☁️ Nenhum post salvo NESTE navegador para enviar.\n\nSe você cadastrou os posts em outro computador, abra a dashboard lá e clique em "Enviar pra nuvem".');
-    return;
-  }
-  if(!POSTS_API){ alert('Backend não configurado.'); return; }
-  _pushing=true;
-  if(btn){ btn.disabled=true; btn.textContent='☁️ Enviando…'; }
-  try{
-    await fetch(POSTS_API,{method:'POST',mode:'no-cors',body:JSON.stringify({profile:POSTS_PROFILE,posts:local})});
-    _sheetPosts=local; renderPostsTable();
-    alert('☁️ Enviado pra nuvem: '+local.length+' post(s).\n\nAguarde alguns segundos e abra em outro computador (Ctrl+Shift+R) para conferir.');
-  }catch(e){
-    alert('❌ Falha ao enviar pra nuvem. Verifique a conexão e tente de novo.');
-  }
-  if(btn){ btn.disabled=false; btn.textContent='☁️ Enviar pra nuvem'; }
-  _pushing=false;
-}
-function loadSheetPosts(){
+// Carrega posts do servidor (fonte única), confirmável, com retry.
+async function loadSheetPosts(attempt){
+  attempt=attempt||0;
   if(!POSTS_API) return;
-  const cb='_pcb_'+Date.now();
-  const s=document.createElement('script');
-  const done=()=>{try{delete window[cb];}catch(e){}if(s.parentNode)s.parentNode.removeChild(s);clearTimeout(tm);};
-  const tm=setTimeout(done,12000);
-  window[cb]=(resp)=>{ if(resp&&resp.ok&&Array.isArray(resp.posts)){ _sheetPosts=resp.posts.map(x=>({nome:x.nome||'',link:x.link||'',inv:+x.inv||0,dia:+x.dia||0,saldo:+x.saldo||0,status:x.status||'ativo',obs:x.obs||''})); setPosts(_sheetPosts); renderPostsTable(); } done(); };
-  s.onerror=done;
-  s.src=POSTS_API+'?profile='+encodeURIComponent(POSTS_PROFILE)+'&callback='+cb+'&_='+Date.now();
-  document.head.appendChild(s);
+  try{
+    const r=await fetch(POSTS_API+'?profile='+encodeURIComponent(POSTS_PROFILE)+'&_='+Date.now(),{cache:'no-cache'});
+    const resp=await r.json();
+    if(resp&&resp.ok&&Array.isArray(resp.posts)){
+      _sheetPosts=resp.posts.map(x=>({nome:x.nome||'',link:x.link||'',inv:+x.inv||0,dia:+x.dia||0,saldo:+x.saldo||0,status:x.status||'ativo',obs:x.obs||''}));
+      if(_sheetPosts.length) setPosts(_sheetPosts);
+      renderPostsTable();
+    } else if(attempt<3){ setTimeout(()=>loadSheetPosts(attempt+1),1500); }
+  }catch(e){ if(attempt<3) setTimeout(()=>loadSheetPosts(attempt+1),1500); }
+}
+// AUTO-SAVE: mexeu em qualquer campo → salva sozinho no servidor, com confirmação
+// e retry. Sem botão. Local na hora, servidor com debounce.
+let _saveTimer=null;
+function autoSave(){
+  if(!_draft) return;
+  const posts=_draft.slice();
+  setPosts(posts); _sheetPosts=posts; renderPostsTable();
+  showSaveStatus('salvando');
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(()=>cloudSave(posts,0),650);
+}
+async function cloudSave(posts,attempt){
+  try{
+    const r=await fetch(POSTS_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile:POSTS_PROFILE,posts})});
+    const j=await r.json();
+    if(j&&j.ok) showSaveStatus('salvo'); else throw new Error('resp');
+  }catch(e){
+    if(attempt<5){ showSaveStatus('salvando'); setTimeout(()=>cloudSave(posts,attempt+1),1500); }
+    else showSaveStatus('erro');
+  }
+}
+function showSaveStatus(st){
+  const el=document.getElementById('save-status'); if(!el) return;
+  if(st==='salvando'){ el.textContent='● salvando…'; el.style.color='#c9a24a'; }
+  else if(st==='salvo'){ el.textContent='✓ salvo'; el.style.color='#34d399'; }
+  else { el.textContent='⚠ sem conexão — tentando de novo…'; el.style.color='#f0788a'; }
 }
 
 let _draft=null;
 
+let _modalListenerAdded=false;
 function openPostsModal(){
   _draft=getPosts().map(p=>({...p}));
   renderPostList();
   R('posts-modal').classList.add('open');
+  // os campos editam _draft inline; um listener no container salva a cada digitação
+  if(!_modalListenerAdded){ R('post-list').addEventListener('input', ()=>{ if(_draft) autoSave(); }); _modalListenerAdded=true; }
 }
 function closePostsModal(){
+  if(_draft&&R('f-nome').value.trim()&&R('f-link').value.trim())draftAdd();
+  if(_saveTimer&&_draft){ clearTimeout(_saveTimer); cloudSave(_draft.slice(),0); }   // flush pendente
   _draft=null;
   R('posts-modal').classList.remove('open');
 }
-async function saveModal(){
-  const posts=_draft.slice();
-  setPosts(posts); _sheetPosts=posts;
-  _draft=null;
-  renderPostsTable();
-  R('posts-modal').classList.remove('open');
-  if(POSTS_API){ try{ await fetch(POSTS_API,{method:'POST',mode:'no-cors',body:JSON.stringify({profile:POSTS_PROFILE,posts})}); }catch(e){console.warn('sync posts',e);} }
-}
+function saveModal(){ closePostsModal(); }   // tudo é auto-save; "salvar" = fechar
 
 function renderPostList(){
   if(!_draft){return;}
@@ -672,6 +676,7 @@ function draftToggle(i){
   const cycle={ativo:'inativo',inativo:'subir',subir:'ativo'};
   _draft[i].status=cycle[_draft[i].status||'ativo']||'ativo';
   renderPostList();
+  autoSave();
 }
 function statusPillHtml(status,clickable,idx){
   const map={
@@ -688,6 +693,7 @@ function draftDelete(i){
   if(!confirm('Remover este post?'))return;
   _draft.splice(i,1);
   renderPostList();
+  autoSave();
 }
 
 function draftAdd(){
@@ -704,6 +710,7 @@ function draftAdd(){
   R('f-seg').value='';R('f-dia').value='';R('f-obs').value='';
   R('f-status').value='ativo';
   renderPostList();
+  autoSave();
 }
 
 function renderPostsTable(){
