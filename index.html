@@ -96,6 +96,9 @@
     .dr-inp:hover{border-color:var(--purple);}
     .dr-clear{padding:5px 11px;font-size:11px;font-weight:600;color:var(--sub);background:var(--card);border:1px solid var(--border);border-radius:20px;cursor:pointer;}
     .dr-clear:hover{color:var(--text);border-color:var(--purple);}
+    th.sortable{cursor:pointer;user-select:none;transition:color .12s;}
+    th.sortable:hover{color:var(--purple);}
+    th .sar{font-size:9px;opacity:.9;color:var(--purple);}
     /* Posts modal */
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center;}
     .modal-overlay.open{display:flex;}
@@ -252,19 +255,19 @@
   <div class="tbl-box">
     <div class="tbl-head" style="justify-content:space-between">
       <span class="tbl-head-title">Detalhamento por Dia</span>
-      <span style="font-size:10px;color:var(--sub);font-weight:500">planilha manual · ordem decrescente</span>
+      <span style="font-size:10px;color:var(--sub);font-weight:500">planilha manual · clique nas colunas p/ ordenar</span>
     </div>
     <div class="tbl-scroll">
       <table>
         <thead><tr>
-          <th>Data</th>
-          <th class="tr">Novos Seg.</th>
-          <th class="tr">Investimento</th>
-          <th class="tr">CPS</th>
-          <th class="tr">Cliques</th>
-          <th class="tr">CPC</th>
-          <th class="tr">Impressões</th>
-          <th class="tr">CPM</th>
+          <th class="sortable" data-sk="date" onclick="sortDaily('date')">Data <span class="sar"></span></th>
+          <th class="tr sortable" data-sk="seg" onclick="sortDaily('seg')">Novos Seg. <span class="sar"></span></th>
+          <th class="tr sortable" data-sk="inv" onclick="sortDaily('inv')">Investimento <span class="sar"></span></th>
+          <th class="tr sortable" data-sk="cps" onclick="sortDaily('cps')">CPS <span class="sar"></span></th>
+          <th class="tr sortable" data-sk="clk" onclick="sortDaily('clk')">Cliques <span class="sar"></span></th>
+          <th class="tr sortable" data-sk="cpc" onclick="sortDaily('cpc')">CPC <span class="sar"></span></th>
+          <th class="tr sortable" data-sk="imp" onclick="sortDaily('imp')">Impressões <span class="sar"></span></th>
+          <th class="tr sortable" data-sk="cpm" onclick="sortDaily('cpm')">CPM <span class="sar"></span></th>
         </tr></thead>
         <tbody id="d-tbody"></tbody>
       </table>
@@ -574,8 +577,13 @@ function renderDailyView(filterMKey){
     }
   }});
 
-  // Tabela diária (ordem decrescente, só dias passados)
-  R('d-tbody').innerHTML=[...rows].reverse().map(r=>`<tr>
+  // Tabela diária — ordenável por coluna (padrão: data desc)
+  _dailyRows=rows; renderDailyTable();
+}
+
+let _dailyRows=[], _dailySort={key:'date',dir:-1};
+const _dVal=(r,k)=>k==='date'?r._pd.key:(k==='seg'?r._seg:k==='inv'?r._inv:k==='cps'?r._cps:k==='clk'?r._clk:k==='cpc'?r._cpc:k==='imp'?r._imp:r._cpm);
+const _dRow=r=>`<tr>
     <td style="white-space:nowrap;font-weight:600;color:var(--sub)">${r._pd.label}</td>
     <td class="tr" style="color:var(--purple)">${r._seg>0?'+'+r._seg:'—'}</td>
     <td class="tr" style="color:var(--orange)">${r._inv>0?fmtR(r._inv):'—'}</td>
@@ -584,8 +592,19 @@ function renderDailyView(filterMKey){
     <td class="tr" style="color:var(--sub)">${r._cpc>0?fmtR(r._cpc):'—'}</td>
     <td class="tr">${r._imp>0?fmtN(r._imp):'—'}</td>
     <td class="tr" style="color:var(--sub)">${r._cpm>0?fmtR(r._cpm):'—'}</td>
-  </tr>`).join('');
+  </tr>`;
+function renderDailyTable(){
+  const {key,dir}=_dailySort;
+  const rows=[..._dailyRows].sort((a,b)=>{const va=_dVal(a,key),vb=_dVal(b,key);
+    return key==='date'?dir*String(va).localeCompare(String(vb)):dir*((va||0)-(vb||0));});
+  R('d-tbody').innerHTML=rows.map(_dRow).join('');
+  document.querySelectorAll('th.sortable[data-sk]').forEach(th=>{
+    const s=th.querySelector('.sar'); if(s) s.textContent=(th.dataset.sk===key)?(dir<0?'▼':'▲'):'';});
 }
+window.sortDaily=function(key){
+  if(_dailySort.key===key)_dailySort.dir=-_dailySort.dir; else _dailySort={key,dir:-1};
+  renderDailyTable();
+};
 
 window.setDailyMonth=function(mKey,btn){
   _dfStart=_dfEnd=null;                                   // clicar num mês limpa o De/Até
