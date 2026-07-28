@@ -89,6 +89,13 @@
     .mf-btn{padding:5px 13px;font-size:11px;font-weight:600;color:var(--sub);background:var(--card);border:1px solid var(--border);border-radius:20px;cursor:pointer;transition:all .15s;}
     .mf-btn:hover{color:var(--text);border-color:var(--purple);}
     .mf-btn.active{background:rgba(167,139,250,.15);color:var(--purple);border-color:var(--purple);}
+    .dr-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-8px 0 20px;}
+    .dr-lbl{font-size:11px;font-weight:600;color:var(--sub);}
+    .dr-sep{font-size:11px;color:var(--sub);}
+    .dr-inp{background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:5px 9px;font-size:11px;color-scheme:dark;cursor:pointer;}
+    .dr-inp:hover{border-color:var(--purple);}
+    .dr-clear{padding:5px 11px;font-size:11px;font-weight:600;color:var(--sub);background:var(--card);border:1px solid var(--border);border-radius:20px;cursor:pointer;}
+    .dr-clear:hover{color:var(--text);border-color:var(--purple);}
     /* Posts modal */
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center;}
     .modal-overlay.open{display:flex;}
@@ -192,6 +199,13 @@
   </div>
 
   <div id="month-filter-bar" class="mf-bar"></div>
+  <div class="dr-bar">
+    <span class="dr-lbl">📅 Período:</span>
+    <input type="date" id="df-start" class="dr-inp" onchange="onDailyRange()">
+    <span class="dr-sep">até</span>
+    <input type="date" id="df-end" class="dr-inp" onchange="onDailyRange()">
+    <button class="dr-clear" id="df-clear" onclick="clearDailyRange()" style="display:none">✕ limpar</button>
+  </div>
 
   <div class="chart-row">
     <div class="chart-box">
@@ -498,9 +512,15 @@ function parseDailyDate(ddmm){
 
 // ── DAILY CHARTS (chamado ao mudar filtro de mês) ─────────────
 let _allDailyRows=[];
+let _dfStart=null,_dfEnd=null;   // filtro De/Até (chaves 'YYYY-MM-DD' ou null)
 function renderDailyView(filterMKey){
   const todayKey=new Date().toISOString().substring(0,10); // YYYY-MM-DD
-  const base=filterMKey==='all'?_allDailyRows:_allDailyRows.filter(r=>r._pd&&r._pd.mKey===filterMKey);
+  let base;
+  if(_dfStart||_dfEnd){   // filtro por intervalo tem prioridade sobre o mês
+    base=_allDailyRows.filter(r=>r._pd&&(!_dfStart||r._pd.key>=_dfStart)&&(!_dfEnd||r._pd.key<=_dfEnd));
+  }else{
+    base=filterMKey==='all'?_allDailyRows:_allDailyRows.filter(r=>r._pd&&r._pd.mKey===filterMKey);
+  }
   // Remover datas futuras
   const rows=base.filter(r=>r._pd&&r._pd.key<=todayKey);
 
@@ -568,9 +588,27 @@ function renderDailyView(filterMKey){
 }
 
 window.setDailyMonth=function(mKey,btn){
+  _dfStart=_dfEnd=null;                                   // clicar num mês limpa o De/Até
+  const s=R('df-start'),e=R('df-end'),c=R('df-clear');
+  if(s)s.value='';if(e)e.value='';if(c)c.style.display='none';
   document.querySelectorAll('.mf-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderDailyView(mKey);
+};
+window.onDailyRange=function(){
+  const a=R('df-start').value,b=R('df-end').value;
+  _dfStart=a||null;_dfEnd=b||null;
+  if(_dfStart&&_dfEnd&&_dfStart>_dfEnd){const t=_dfStart;_dfStart=_dfEnd;_dfEnd=t;R('df-start').value=_dfStart;R('df-end').value=_dfEnd;}
+  document.querySelectorAll('.mf-btn').forEach(x=>x.classList.remove('active'));  // desativa mês
+  R('df-clear').style.display=(_dfStart||_dfEnd)?'':'none';
+  renderDailyView('all');
+};
+window.clearDailyRange=function(){
+  _dfStart=_dfEnd=null;R('df-start').value='';R('df-end').value='';R('df-clear').style.display='none';
+  document.querySelectorAll('.mf-btn').forEach(x=>x.classList.remove('active'));
+  const all=R('month-filter-bar')&&R('month-filter-bar').querySelector('.mf-btn');
+  if(all)all.classList.add('active');   // volta pra "Tudo"
+  renderDailyView('all');
 };
 
 // ── Parser aba Pati → filtra linhas Verdadeiro com link Instagram ──
@@ -794,6 +832,10 @@ function renderImp(dailyRows){
       const label=MS[+m-1]+'/'+String(+y).slice(2);
       return`<button class="mf-btn" onclick="setDailyMonth('${mk}',this)">${label}</button>`;
     }).join('');
+  // Limites do De/Até = intervalo real dos dados
+  const allKeys=_allDailyRows.filter(r=>r._pd).map(r=>r._pd.key).sort();
+  if(allKeys.length){const s=R('df-start'),e=R('df-end');
+    if(s){s.min=e.min=allKeys[0];s.max=e.max=allKeys[allKeys.length-1];}}
   // Ativar último mês com dados
   const lastMKey=mKeys[mKeys.length-1]||'all';
   const lastBtn=bar.querySelector(`[onclick*="${lastMKey}"]`)||bar.querySelector('.mf-btn');
