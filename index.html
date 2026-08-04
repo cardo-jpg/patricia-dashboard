@@ -387,6 +387,10 @@
     </div>
   </div>
 
+  <p class="sec-eb">Conjuntos de Anúncios</p>
+  <p style="font-size:11px;color:var(--sub);margin:-8px 0 12px">Agrupado por público (a segmentação do conjunto) · respeita o filtro de data acima</p>
+  <div class="kpi-grid-eb" id="ebk-conjuntos" style="margin-bottom:8px"></div>
+
   <p class="sec-eb">Detalhamento por Criativo</p>
   <div class="pfilter" id="ebfilter" style="margin-bottom:12px">
     <button data-f="todos" class="on" onclick="setEbApFilter('todos')">Todos <span id="ebf-c-todos"></span></button>
@@ -1124,6 +1128,18 @@ function renderEbook(rows){
     }
   });
 
+  // Conjuntos de anúncios (por público) — respeita o filtro de data
+  const pubMap={};
+  rows.forEach(r=>{ const p=r.publico||'—'; if(!pubMap[p])pubMap[p]={inv:0,leads:0,clicks:0,imp:0}; pubMap[p].inv+=r.inv;pubMap[p].leads+=r.leads;pubMap[p].clicks+=r.clicks;pubMap[p].imp+=r.imp; });
+  const _cjEl=R('ebk-conjuntos');
+  if(_cjEl){
+    const pubs=Object.keys(pubMap).sort((a,b)=>pubMap[b].inv-pubMap[a].inv);
+    _cjEl.innerHTML=pubs.map(p=>{
+      const m=pubMap[p], cpl=m.leads>0?m.inv/m.leads:0, ctr=m.imp>0?m.clicks/m.imp*100:0;
+      return `<div class="kpi-eb c-purple"><p class="kpi-eb-lbl">${p}</p><p class="kpi-eb-val purple">${fmtR(m.inv)}</p><p class="kpi-eb-note">${m.leads||0} leads · CPL ${m.leads>0?fmtR(cpl):'—'} · ${m.clicks} cliques · CTR ${ctr.toFixed(2)}%</p></div>`;
+    }).join('');
+  }
+
   // Table por criativo
   const sorted=criNames.sort((a,b)=>criMap[b].inv-criMap[a].inv);
   // Status de aprovação (Meta) por criativo — pega o mais recente da planilha
@@ -1185,6 +1201,7 @@ async function load(){
       criativo:ebMapCriativo(r.Criativo),
       url:r.URL||'',
       status:(r.Status||'').trim(),
+      publico:(r.Publico||'').trim(),
       inv:ebParseMoney(r.Investido),
       imp:parseInt(r.Impressoes)||0,
       clicks:parseInt(r.Cliques)||0,
