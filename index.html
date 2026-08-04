@@ -984,6 +984,14 @@ function editEbUrl(nome){
 }
 let _lastEbRows=[];
 let _allEbRows=[];   // todas as linhas do ebook (>= 21/06), sem filtro de data
+// Estado manual Ativo/Pausado por criativo (só p/ os não-reprovados)
+let _ebManual={}; try{ _ebManual=JSON.parse(localStorage.getItem('pati_eb_status')||'{}'); }catch(e){ _ebManual={}; }
+function toggleEbStatus(nome){
+  const cur=_ebManual[nome]||'ativo';
+  _ebManual[nome]= cur==='pausado'?'ativo':'pausado';
+  try{ localStorage.setItem('pati_eb_status',JSON.stringify(_ebManual)); }catch(e){}
+  if(_lastEbRows) renderEbook(_lastEbRows);
+}
 
 // ── FILTRO DE DATA DO EBOOK ──────────────────────────────────
 function _ebDate(ddmm){ const p=(ddmm||'').split('/').map(Number); return new Date(2026,(p[1]||1)-1,(p[0]||1)); }
@@ -1176,11 +1184,16 @@ function renderEbook(rows){
   R('ebk-tbody').innerHTML=visible.map(nome=>{
     const c=criMap[nome];
     const apSt=ebStatus[nome]||'';
-    const apPill=apSt==='ACTIVE'
-      ?'<span style="background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:8px;white-space:nowrap">● Ativo</span>'
-      :apSt==='DISAPPROVED'
-        ?'<span style="background:rgba(255,107,107,.1);color:var(--red);border:1px solid rgba(255,107,107,.2);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:8px;white-space:nowrap">✕ Reprovado</span>'
-        :'';
+    const _en=nome.replace(/'/g,"\\'");
+    let apPill;
+    if(apSt==='DISAPPROVED'){
+      apPill='<span style="background:rgba(255,107,107,.1);color:var(--red);border:1px solid rgba(255,107,107,.2);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:8px;white-space:nowrap">✕ Reprovado</span>';
+    } else {
+      const mst=_ebManual[nome]||'ativo';
+      apPill= mst==='pausado'
+        ? `<span onclick="toggleEbStatus('${_en}')" title="Clique para reativar" style="cursor:pointer;background:rgba(255,209,102,.12);color:#ffd166;border:1px solid rgba(255,209,102,.3);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:8px;white-space:nowrap">⏸ Pausado</span>`
+        : `<span onclick="toggleEbStatus('${_en}')" title="Clique para pausar" style="cursor:pointer;background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:8px;white-space:nowrap">● Ativo</span>`;
+    }
     const cplN=c.leads>0?c.inv/c.leads:null;
     const ctrN=c.imp>0?c.clicks/c.imp*100:null;
     const badge=cplN===null
@@ -1197,9 +1210,7 @@ function renderEbook(rows){
       <td class="td-r">${c.leads||'—'}</td>
       <td class="td-r">${cplN!==null?fmtR(cplN):'—'}</td>
       <td>${badge}</td>
-      <td class="anuncio-col" style="white-space:nowrap">${c.url?`<a href="${c.url}" target="_blank" class="ad-btn">🔗 Ver Ad</a> `:''}
-        <button class="ad-btn" style="background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.25);color:var(--purple)" onclick="editEbUrl('${nome.replace(/'/g,"\\'")}')">✏️</button>
-      </td>
+      <td class="anuncio-col" style="white-space:nowrap">${c.url?`<a href="${c.url}" target="_blank" class="ad-btn">🔗 Ver Ad</a> <button class="ad-btn" style="background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.25);color:var(--purple)" onclick="editEbUrl('${nome.replace(/'/g,"\\'")}')">✏️</button>`:'<span style="color:var(--sub);font-size:11px">—</span>'}</td>
     </tr>`;
   }).join('');
 }
