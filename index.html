@@ -372,6 +372,12 @@
   </div>
 
   <p class="sec-eb">Detalhamento por Criativo</p>
+  <div class="pfilter" id="ebfilter" style="margin-bottom:12px">
+    <button data-f="todos" class="on" onclick="setEbApFilter('todos')">Todos <span id="ebf-c-todos"></span></button>
+    <button data-f="ACTIVE" onclick="setEbApFilter('ACTIVE')">Ativos <span id="ebf-c-ativo"></span></button>
+    <button data-f="DISAPPROVED" onclick="setEbApFilter('DISAPPROVED')">Reprovados <span id="ebf-c-reprov"></span></button>
+    <button data-f="sem" onclick="setEbApFilter('sem')">Sem status <span id="ebf-c-sem"></span></button>
+  </div>
   <div class="tbl-card-eb">
     <table>
       <thead><tr>
@@ -967,6 +973,13 @@ function ebMapCriativo(code){
   return code.replace(/^AD\d+_(IMG_|VID_)/,'').replace(/_/g,' ');
 }
 
+// Filtro de status de aprovação do ebook (todos | ACTIVE | DISAPPROVED | sem)
+let _ebApFilter='todos';
+function setEbApFilter(f){
+  _ebApFilter=f;
+  document.querySelectorAll('#ebfilter button').forEach(b=>b.classList.toggle('on', b.dataset.f===f));
+  if(_lastEbRows) renderEbook(_lastEbRows);
+}
 function renderEbook(rows){
   _lastEbRows=rows;
   if(!rows.length){
@@ -1069,8 +1082,24 @@ function renderEbook(rows){
 
   // Table por criativo
   const sorted=criNames.sort((a,b)=>criMap[b].inv-criMap[a].inv);
-  R('ebk-tbody').innerHTML=sorted.map(nome=>{
+  // Status de aprovação (Meta) por criativo — pega o mais recente da planilha
+  const _dnum=d=>{const p=(d||'').split('/').map(Number);return (p[1]||0)*100+(p[0]||0);};
+  const ebStatus={};
+  rows.slice().sort((a,b)=>_dnum(a.date)-_dnum(b.date)).forEach(r=>{ if(r.status) ebStatus[r.criativo]=r.status; });
+  const apCnt={todos:sorted.length,ACTIVE:0,DISAPPROVED:0,sem:0};
+  sorted.forEach(n=>{ const s=ebStatus[n]; if(s==='ACTIVE')apCnt.ACTIVE++; else if(s==='DISAPPROVED')apCnt.DISAPPROVED++; else apCnt.sem++; });
+  const setc=(id,v)=>{const e=R(id); if(e)e.textContent='('+v+')';};
+  setc('ebf-c-todos',apCnt.todos); setc('ebf-c-ativo',apCnt.ACTIVE); setc('ebf-c-reprov',apCnt.DISAPPROVED); setc('ebf-c-sem',apCnt.sem);
+  const visible=sorted.filter(n=>{ const s=ebStatus[n]||''; if(_ebApFilter==='ACTIVE')return s==='ACTIVE'; if(_ebApFilter==='DISAPPROVED')return s==='DISAPPROVED'; if(_ebApFilter==='sem')return !s; return true; });
+  if(!visible.length){ R('ebk-tbody').innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--sub);padding:20px">Nenhum criativo com esse status.</td></tr>'; return; }
+  R('ebk-tbody').innerHTML=visible.map(nome=>{
     const c=criMap[nome];
+    const apSt=ebStatus[nome]||'';
+    const apPill=apSt==='ACTIVE'
+      ?'<span style="background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:8px;white-space:nowrap">● Ativo</span>'
+      :apSt==='DISAPPROVED'
+        ?'<span style="background:rgba(255,107,107,.1);color:var(--red);border:1px solid rgba(255,107,107,.2);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:8px;white-space:nowrap">✕ Reprovado</span>'
+        :'';
     const cplN=c.leads>0?c.inv/c.leads:null;
     const ctrN=c.imp>0?c.clicks/c.imp*100:null;
     const badge=cplN===null
@@ -1079,7 +1108,7 @@ function renderEbook(rows){
         ?`<span class="pill-g">Abaixo da meta</span>`
         :`<span class="pill-r">Acima da meta</span>`;
     return`<tr>
-      <td>${nome}</td>
+      <td>${nome}${apPill}</td>
       <td class="td-r">${fmtR(c.inv)}</td>
       <td class="td-r">${fmtN(c.imp)}</td>
       <td class="td-r">${c.clicks}</td>
@@ -1111,6 +1140,7 @@ async function load(){
       date:ebShortDate(r.Date),
       criativo:ebMapCriativo(r.Criativo),
       url:r.URL||'',
+      status:(r.Status||'').trim(),
       inv:ebParseMoney(r.Investido),
       imp:parseInt(r.Impressoes)||0,
       clicks:parseInt(r.Cliques)||0,
