@@ -422,13 +422,13 @@
   <div class="tbl-card-eb">
     <table>
       <thead><tr>
-        <th>Criativo</th>
-        <th class="td-r">Investido</th>
-        <th class="td-r">Impressões</th>
-        <th class="td-r">Cliques</th>
-        <th class="td-r">CTR</th>
-        <th class="td-r">Leads</th>
-        <th class="td-r">CPL</th>
+        <th class="sortable eb-sortable" data-ek="nome" onclick="sortEb('nome')">Criativo <span class="sar"></span></th>
+        <th class="td-r sortable eb-sortable" data-ek="inv" onclick="sortEb('inv')">Investido <span class="sar"></span></th>
+        <th class="td-r sortable eb-sortable" data-ek="imp" onclick="sortEb('imp')">Impressões <span class="sar"></span></th>
+        <th class="td-r sortable eb-sortable" data-ek="clicks" onclick="sortEb('clicks')">Cliques <span class="sar"></span></th>
+        <th class="td-r sortable eb-sortable" data-ek="ctr" onclick="sortEb('ctr')">CTR <span class="sar"></span></th>
+        <th class="td-r sortable eb-sortable" data-ek="leads" onclick="sortEb('leads')">Leads <span class="sar"></span></th>
+        <th class="td-r sortable eb-sortable" data-ek="cpl" onclick="sortEb('cpl')">CPL <span class="sar"></span></th>
         <th>Status</th>
         <th class="anuncio-col">Anúncio</th>
       </tr></thead>
@@ -992,6 +992,9 @@ function toggleEbStatus(nome){
   try{ localStorage.setItem('pati_eb_status',JSON.stringify(_ebManual)); }catch(e){}
   if(_lastEbRows) renderEbook(_lastEbRows);
 }
+// Ordenação da tabela de criativos do ebook
+let _ebSort={key:'inv',dir:-1};
+function sortEb(key){ if(_ebSort.key===key)_ebSort.dir=-_ebSort.dir; else _ebSort={key,dir:-1}; if(_lastEbRows) renderEbook(_lastEbRows); }
 
 // ── FILTRO DE DATA DO EBOOK ──────────────────────────────────
 function _ebDate(ddmm){ const p=(ddmm||'').split('/').map(Number); return new Date(2026,(p[1]||1)-1,(p[0]||1)); }
@@ -1169,8 +1172,10 @@ function renderEbook(rows){
     }).join('');
   }
 
-  // Table por criativo
-  const sorted=criNames.sort((a,b)=>criMap[b].inv-criMap[a].inv);
+  // Table por criativo — ordenação pelo cabeçalho
+  const _ev=(n,k)=>{ const c=criMap[n]; if(k==='nome')return n; if(k==='ctr')return c.imp>0?c.clicks/c.imp:0; if(k==='cpl')return c.leads>0?c.inv/c.leads:-1; return c[k]||0; };
+  const sorted=criNames.sort((a,b)=>{ const va=_ev(a,_ebSort.key),vb=_ev(b,_ebSort.key); return _ebSort.key==='nome'?_ebSort.dir*String(va).localeCompare(String(vb)):_ebSort.dir*((va||0)-(vb||0)); });
+  document.querySelectorAll('th.eb-sortable[data-ek]').forEach(th=>{ const s=th.querySelector('.sar'); if(s) s.textContent=(th.dataset.ek===_ebSort.key)?(_ebSort.dir<0?'▼':'▲'):''; });
   // Status de aprovação (Meta) por criativo — pega o mais recente da planilha
   const _dnum=d=>{const p=(d||'').split('/').map(Number);return (p[1]||0)*100+(p[0]||0);};
   const ebStatus={};
