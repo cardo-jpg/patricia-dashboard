@@ -395,7 +395,20 @@
 
   <p class="sec-eb">Conjuntos de Anúncios</p>
   <p style="font-size:11px;color:var(--sub);margin:-8px 0 12px">Agrupado por público (a segmentação do conjunto) · respeita o filtro de data acima</p>
-  <div class="cj-wrap" id="ebk-conjuntos"></div>
+  <div class="tbl-card-eb">
+    <table>
+      <thead><tr>
+        <th>Conjunto (público)</th>
+        <th class="td-r">Investido</th>
+        <th class="td-r">Impressões</th>
+        <th class="td-r">Cliques</th>
+        <th class="td-r">CTR</th>
+        <th class="td-r">Leads</th>
+        <th class="td-r">CPL</th>
+      </tr></thead>
+      <tbody id="ebk-conjuntos"></tbody>
+    </table>
+  </div>
 
   <p class="sec-eb">Detalhamento por Criativo</p>
   <div class="pfilter" id="ebfilter" style="margin-bottom:12px">
@@ -1142,12 +1155,7 @@ function renderEbook(rows){
     const pubs=Object.keys(pubMap).sort((a,b)=>pubMap[b].inv-pubMap[a].inv);
     _cjEl.innerHTML=pubs.map(p=>{
       const m=pubMap[p], cpl=m.leads>0?m.inv/m.leads:0, ctr=m.imp>0?m.clicks/m.imp*100:0;
-      return `<div class="cj-card"><div class="cj-title">🎯 ${p}</div><div class="cj-grid">`
-        +`<div class="cj-m"><span>Investido</span><b>${fmtR(m.inv)}</b></div>`
-        +`<div class="cj-m"><span>Leads</span><b>${m.leads||0}</b></div>`
-        +`<div class="cj-m"><span>CPL</span><b>${m.leads>0?fmtR(cpl):'—'}</b></div>`
-        +`<div class="cj-m"><span>CTR</span><b>${ctr.toFixed(2)}%</b></div>`
-        +`</div></div>`;
+      return `<tr><td style="color:var(--purple);font-weight:600">${p}</td><td class="td-r">${fmtR(m.inv)}</td><td class="td-r">${fmtN(m.imp)}</td><td class="td-r">${m.clicks}</td><td class="td-r">${ctr.toFixed(2)}%</td><td class="td-r">${m.leads||0}</td><td class="td-r">${m.leads>0?fmtR(cpl):'—'}</td></tr>`;
     }).join('');
   }
 
@@ -1179,7 +1187,7 @@ function renderEbook(rows){
         ?`<span class="pill-g">Abaixo da meta</span>`
         :`<span class="pill-r">Acima da meta</span>`;
     return`<tr>
-      <td style="max-width:300px"><div style="display:flex;align-items:center;gap:6px;min-width:0"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${nome}</span>${apPill}${c.url?`<a href="${c.url}" target="_blank" title="Ver anúncio" style="flex:0 0 auto;color:var(--cyan);text-decoration:none;font-size:13px">🔗</a>`:''}</div></td>
+      <td style="max-width:210px"><div style="display:flex;align-items:center;gap:6px;min-width:0"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${nome}</span>${apPill}</div></td>
       <td class="td-r">${fmtR(c.inv)}</td>
       <td class="td-r">${fmtN(c.imp)}</td>
       <td class="td-r">${c.clicks}</td>
