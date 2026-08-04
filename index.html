@@ -1152,7 +1152,7 @@ function renderEbook(rows){
         ?`<span class="pill-g">Abaixo da meta</span>`
         :`<span class="pill-r">Acima da meta</span>`;
     return`<tr>
-      <td>${nome}${apPill}</td>
+      <td style="max-width:260px"><div style="display:flex;align-items:center;gap:6px;min-width:0"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${nome}</span>${apPill}</div></td>
       <td class="td-r">${fmtR(c.inv)}</td>
       <td class="td-r">${fmtN(c.imp)}</td>
       <td class="td-r">${c.clicks}</td>
