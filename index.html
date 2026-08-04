@@ -132,6 +132,12 @@
     .ebd-inp{background:#141c28;border:1px solid var(--border);color:#f0f4f8;border-radius:8px;padding:5px 9px;font-family:inherit;font-size:12px;color-scheme:dark;}
     .ebd-apply{background:rgba(0,198,255,.1);border:1px solid rgba(0,198,255,.35);color:#00c6ff;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
     .ebd-apply:hover{background:rgba(0,198,255,.2);}
+    .cj-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:14px;margin-bottom:10px;}
+    .cj-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:12px;padding:15px 18px;}
+    .cj-title{font-size:13.5px;font-weight:700;color:#f0f4f8;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+    .cj-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px 14px;}
+    .cj-m span{display:block;font-size:9.5px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+    .cj-m b{font-size:17px;font-weight:800;color:#f0f4f8;}
     tr.inativo td{opacity:.4;}
     tr.inativo .tnm::after{content:' (inativo)';font-size:10px;color:var(--red);}
     /* Ebook — SRI-style classes */
@@ -389,7 +395,7 @@
 
   <p class="sec-eb">Conjuntos de Anúncios</p>
   <p style="font-size:11px;color:var(--sub);margin:-8px 0 12px">Agrupado por público (a segmentação do conjunto) · respeita o filtro de data acima</p>
-  <div class="kpi-grid-eb" id="ebk-conjuntos" style="margin-bottom:8px"></div>
+  <div class="cj-wrap" id="ebk-conjuntos"></div>
 
   <p class="sec-eb">Detalhamento por Criativo</p>
   <div class="pfilter" id="ebfilter" style="margin-bottom:12px">
@@ -1136,7 +1142,12 @@ function renderEbook(rows){
     const pubs=Object.keys(pubMap).sort((a,b)=>pubMap[b].inv-pubMap[a].inv);
     _cjEl.innerHTML=pubs.map(p=>{
       const m=pubMap[p], cpl=m.leads>0?m.inv/m.leads:0, ctr=m.imp>0?m.clicks/m.imp*100:0;
-      return `<div class="kpi-eb c-purple"><p class="kpi-eb-lbl">${p}</p><p class="kpi-eb-val purple">${fmtR(m.inv)}</p><p class="kpi-eb-note">${m.leads||0} leads · CPL ${m.leads>0?fmtR(cpl):'—'} · ${m.clicks} cliques · CTR ${ctr.toFixed(2)}%</p></div>`;
+      return `<div class="cj-card"><div class="cj-title">🎯 ${p}</div><div class="cj-grid">`
+        +`<div class="cj-m"><span>Investido</span><b>${fmtR(m.inv)}</b></div>`
+        +`<div class="cj-m"><span>Leads</span><b>${m.leads||0}</b></div>`
+        +`<div class="cj-m"><span>CPL</span><b>${m.leads>0?fmtR(cpl):'—'}</b></div>`
+        +`<div class="cj-m"><span>CTR</span><b>${ctr.toFixed(2)}%</b></div>`
+        +`</div></div>`;
     }).join('');
   }
 
@@ -1168,7 +1179,7 @@ function renderEbook(rows){
         ?`<span class="pill-g">Abaixo da meta</span>`
         :`<span class="pill-r">Acima da meta</span>`;
     return`<tr>
-      <td style="max-width:260px"><div style="display:flex;align-items:center;gap:6px;min-width:0"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${nome}</span>${apPill}</div></td>
+      <td style="max-width:300px"><div style="display:flex;align-items:center;gap:6px;min-width:0"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${nome}</span>${apPill}${c.url?`<a href="${c.url}" target="_blank" title="Ver anúncio" style="flex:0 0 auto;color:var(--cyan);text-decoration:none;font-size:13px">🔗</a>`:''}</div></td>
       <td class="td-r">${fmtR(c.inv)}</td>
       <td class="td-r">${fmtN(c.imp)}</td>
       <td class="td-r">${c.clicks}</td>
