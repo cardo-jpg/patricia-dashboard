@@ -129,6 +129,9 @@
     .pfilter button.on[data-f="ativo"]{background:rgba(0,229,160,.14);color:var(--green);}
     .pfilter button.on[data-f="inativo"]{background:rgba(255,107,107,.14);color:var(--red);}
     .pf-empty{text-align:center;color:var(--sub);font-size:12px;padding:22px;}
+    .ebd-inp{background:#141c28;border:1px solid var(--border);color:#f0f4f8;border-radius:8px;padding:5px 9px;font-family:inherit;font-size:12px;color-scheme:dark;}
+    .ebd-apply{background:rgba(0,198,255,.1);border:1px solid rgba(0,198,255,.35);color:#00c6ff;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+    .ebd-apply:hover{background:rgba(0,198,255,.2);}
     tr.inativo td{opacity:.4;}
     tr.inativo .tnm::after{content:' (inativo)';font-size:10px;color:var(--red);}
     /* Ebook — SRI-style classes */
@@ -329,6 +332,19 @@
 <div id="panel-ebook" class="tab-panel">
 <div class="container">
   <p class="sec-eb" style="margin-top:22px">Visão Geral · Facebook Ebook · a partir de 21/06</p>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 16px">
+    <span style="font-size:11px;color:var(--sub);font-weight:700;letter-spacing:.5px">PERÍODO</span>
+    <div class="pfilter" id="ebdate-btns">
+      <button class="on" onclick="ebSetPreset(null,this)">Total</button>
+      <button onclick="ebSetPreset(7,this)">7 dias</button>
+      <button onclick="ebSetPreset(14,this)">14 dias</button>
+      <button onclick="ebSetPreset(30,this)">30 dias</button>
+    </div>
+    <input type="date" id="ebd-start" class="ebd-inp">
+    <span style="color:var(--sub);font-size:12px">→</span>
+    <input type="date" id="ebd-end" class="ebd-inp">
+    <button class="ebd-apply" id="ebd-apply" onclick="ebApplyCustom()">Aplicar</button>
+  </div>
   <div class="kpi-grid-eb">
     <div class="kpi-eb c-cyan"><p class="kpi-eb-lbl">Investido</p><p class="kpi-eb-val cyan" id="ebk-invest">—</p><p class="kpi-eb-note" id="ebk-invest-n">—</p></div>
     <div class="kpi-eb c-green"><p class="kpi-eb-lbl">Leads</p><p class="kpi-eb-val green" id="ebk-leads">—</p><p class="kpi-eb-note" id="ebk-leads-n">—</p></div>
@@ -942,6 +958,34 @@ function editEbUrl(nome){
   renderEbook(_lastEbRows);
 }
 let _lastEbRows=[];
+let _allEbRows=[];   // todas as linhas do ebook (>= 21/06), sem filtro de data
+
+// ── FILTRO DE DATA DO EBOOK ──────────────────────────────────
+function _ebDate(ddmm){ const p=(ddmm||'').split('/').map(Number); return new Date(2026,(p[1]||1)-1,(p[0]||1)); }
+function ebSetPreset(n,btn){
+  document.querySelectorAll('#ebdate-btns button').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  const de=R('ebd-apply'); if(de) de.classList.remove('on');
+  let rows=_allEbRows;
+  if(n){
+    let mx=null; _allEbRows.forEach(r=>{ const d=_ebDate(r.date); if(!mx||d>mx)mx=d; });
+    if(mx){ const cut=new Date(mx); cut.setDate(cut.getDate()-(n-1)); rows=_allEbRows.filter(r=>{ const d=_ebDate(r.date); return d>=cut && d<=mx; }); }
+  }
+  renderEbook(rows);
+}
+function ebApplyCustom(){
+  const dsEl=R('ebd-start'), deEl=R('ebd-end');
+  let s=dsEl.value, e=deEl.value;
+  if(!s||!e){ alert('Escolha as duas datas (início e fim).'); return; }
+  if(s>e){ const t=s; s=e; e=t; dsEl.value=s; deEl.value=e; }  // corrige range invertido
+  const[sy,sm,sd]=s.split('-').map(Number),[ey,em,ed]=e.split('-').map(Number);
+  const start=new Date(sy,sm-1,sd), end=new Date(ey,em-1,ed);
+  const sub=_allEbRows.filter(r=>{ const d=_ebDate(r.date); return d>=start && d<=end; });
+  if(!sub.length){ alert('Não há dados nesse período.\nO ebook tem dados a partir de 21/06.'); return; }
+  document.querySelectorAll('#ebdate-btns button').forEach(b=>b.classList.remove('on'));
+  const ap=R('ebd-apply'); if(ap) ap.classList.add('on');
+  renderEbook(sub);
+}
 
 // ── EBOOK ─────────────────────────────────────────────────────
 const EB_SHEET_ID = '1MNmYN39x8FB8BGBQocZGAL8kDGQ4WZ5B7uAy5KazJ1c';
@@ -1146,6 +1190,14 @@ async function load(){
       clicks:parseInt(r.Cliques)||0,
       leads:parseInt(r.Leads)||0,
     })):[];
+    _allEbRows=ebRows;
+    // preenche os campos de data com o range disponível
+    if(ebRows.length){
+      const _ds=ebRows.map(r=>_ebDate(r.date)).sort((a,b)=>a-b);
+      const _toIn=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      if(R('ebd-start')) R('ebd-start').value=_toIn(_ds[0]);
+      if(R('ebd-end')) R('ebd-end').value=_toIn(_ds[_ds.length-1]);
+    }
 
     renderImp(dailyRows);
     renderOrg(orgRows);
