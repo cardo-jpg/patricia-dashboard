@@ -169,6 +169,8 @@
     .td-r{text-align:right;}
     .ad-btn{display:inline-flex;align-items:center;gap:5px;background:rgba(0,198,255,.08);border:1px solid rgba(0,198,255,.2);color:var(--cyan);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:600;text-decoration:none;}
     .ad-btn:hover{background:rgba(0,198,255,.15);}
+    .anuncio-col{position:sticky;right:0;background:var(--card);box-shadow:-9px 0 11px -6px rgba(0,0,0,.55);z-index:2;}
+    thead .anuncio-col{background:var(--card2,#1a2231);}
     .cloud-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(0,198,255,.08);border:1px solid rgba(0,198,255,.35);color:#00c6ff;border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap;}
     .cloud-btn:hover{background:rgba(0,198,255,.18);}
     .cloud-btn:disabled{opacity:.5;cursor:default;}
@@ -428,7 +430,7 @@
         <th class="td-r">Leads</th>
         <th class="td-r">CPL</th>
         <th>Status</th>
-        <th>Anúncio</th>
+        <th class="anuncio-col">Anúncio</th>
       </tr></thead>
       <tbody id="ebk-tbody"></tbody>
     </table>
@@ -1195,7 +1197,7 @@ function renderEbook(rows){
       <td class="td-r">${c.leads||'—'}</td>
       <td class="td-r">${cplN!==null?fmtR(cplN):'—'}</td>
       <td>${badge}</td>
-      <td style="white-space:nowrap">${c.url?`<a href="${c.url}" target="_blank" class="ad-btn">🔗 Ver Ad</a> `:''}
+      <td class="anuncio-col" style="white-space:nowrap">${c.url?`<a href="${c.url}" target="_blank" class="ad-btn">🔗 Ver Ad</a> `:''}
         <button class="ad-btn" style="background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.25);color:var(--purple)" onclick="editEbUrl('${nome.replace(/'/g,"\\'")}')">✏️</button>
       </td>
     </tr>`;
