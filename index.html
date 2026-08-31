@@ -100,6 +100,17 @@
     th.sortable:hover{color:var(--purple);}
     th .sar{font-size:9px;opacity:.9;color:var(--purple);}
     /* Posts modal */
+    /* inputs de edição inline na tabela (seguidores + investimento) */
+    .seg-inline{width:78px;text-align:right;font-size:13px;font-weight:700;color:var(--purple);
+      background:rgba(139,92,246,.08);border:1px solid transparent;border-radius:7px;padding:5px 8px;
+      font-family:inherit;transition:border-color .12s,background .12s;-moz-appearance:textfield;}
+    .seg-inline:hover{border-color:var(--border);}
+    .seg-inline:focus{outline:none;border-color:var(--purple);background:rgba(139,92,246,.16);}
+    .seg-inline::-webkit-outer-spin-button,.seg-inline::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+    .inv-inline{color:var(--text);background:rgba(255,255,255,.04);width:82px;}
+    .inv-inline:focus{border-color:var(--text);background:rgba(255,255,255,.08);}
+    .inv-wrap{display:inline-flex;align-items:center;gap:4px;justify-content:flex-end;}
+    .inv-cur{font-size:11px;font-weight:600;color:var(--sub);}
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center;}
     .modal-overlay.open{display:flex;}
     .modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;}
@@ -239,8 +250,8 @@
       <span class="tbl-head-title">Rastreamento de Seguidores · Posts</span>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <div class="pfilter" id="pfilter">
-          <button data-f="todos" class="on" onclick="setPostFilter('todos')">Todos <span id="pf-c-todos"></span></button>
-          <button data-f="ativo" onclick="setPostFilter('ativo')">Ativos <span id="pf-c-ativo"></span></button>
+          <button data-f="todos" onclick="setPostFilter('todos')">Todos <span id="pf-c-todos"></span></button>
+          <button data-f="ativo" class="on" onclick="setPostFilter('ativo')">Ativos <span id="pf-c-ativo"></span></button>
           <button data-f="inativo" onclick="setPostFilter('inativo')">Inativos <span id="pf-c-inativo"></span></button>
           <button data-f="subir" onclick="setPostFilter('subir')">Subir <span id="pf-c-subir"></span></button>
         </div>
@@ -699,6 +710,18 @@ function getPosts(){
   catch(e){ return[...DEFAULT_POSTS]; }
 }
 function setPosts(posts){ localStorage.setItem(POSTS_KEY,JSON.stringify(posts)); }
+// Edição inline DIRETO na tabela (sem abrir o modal): seguidores (saldo) e
+// investimento (inv). Salva no servidor com a mesma lógica de auto-save.
+function inlineSaveField(idx, field, value){
+  const posts=getPosts().map(p=>({...p}));
+  if(!posts[idx]) return;
+  posts[idx][field] = field==='inv' ? (parseFloat(value)||0) : (parseInt(value)||0);
+  setPosts(posts); _sheetPosts=posts;   // local na hora
+  renderPostsTable();
+  showSaveStatus('salvando');
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(()=>cloudSave(posts,0),650);
+}
 // Carrega posts do servidor (fonte única), confirmável, com retry.
 async function loadSheetPosts(attempt){
   attempt=attempt||0;
@@ -833,7 +856,7 @@ function draftAdd(){
 }
 
 // Filtro de status da tabela de posts (todos | ativo | inativo | subir)
-let _postFilter='todos';
+let _postFilter='ativo';   // default Ativos: é o que se atualiza no dia a dia
 function setPostFilter(f){
   _postFilter=f;
   document.querySelectorAll('#pfilter button').forEach(b=>b.classList.toggle('on', b.dataset.f===f));
@@ -846,12 +869,13 @@ function renderPostsTable(){
   const cnt={todos:all.length,ativo:0,inativo:0,subir:0};
   all.forEach(p=>{ const s=st(p); if(cnt[s]!==undefined) cnt[s]++; });
   ['todos','ativo','inativo','subir'].forEach(k=>{ const el=document.getElementById('pf-c-'+k); if(el) el.textContent='('+cnt[k]+')'; });
-  const posts = _postFilter==='todos' ? all : all.filter(p=>st(p)===_postFilter);
+  // preserva o índice no array COMPLETO (getPosts) — é ele que o inlineSaveField usa
+  const posts = all.map((p,idx)=>({p,idx})).filter(o=> _postFilter==='todos' || st(o.p)===_postFilter);
   if(!posts.length){
     R('s-tbody').innerHTML='<tr><td colspan="7" class="pf-empty">Nenhum post com esse status.</td></tr>';
     return;
   }
-  R('s-tbody').innerHTML=posts.map(p=>{
+  R('s-tbody').innerHTML=posts.map(({p,idx})=>{
     const ativo=(p.status||'ativo')==='ativo';
     const cps=p.saldo>0&&p.inv>0?p.inv/p.saldo:0;
     const obsHtml=p.obs?`<br><span style="font-size:10px;color:var(--sub);font-style:italic">${p.obs}</span>`:'';
@@ -863,9 +887,15 @@ function renderPostsTable(){
           ${statusPill}
         </div>${obsHtml}
       </td>
-      <td class="tr"><strong style="color:var(--purple)">${fmtN(p.saldo)}</strong></td>
+      <td class="tr"><input class="seg-inline" type="number" min="0" value="${p.saldo||0}"
+        title="Editar seguidores — salva sozinho"
+        onchange="inlineSaveField(${idx},'saldo',this.value)"
+        onkeydown="if(event.key==='Enter')this.blur()" onclick="this.select()"></td>
       <td class="tr" style="color:var(--green)">+${fmtN(p.saldo)}</td>
-      <td class="tr">${fmtR(p.inv)}</td>
+      <td class="tr"><span class="inv-wrap"><span class="inv-cur">R$</span><input class="seg-inline inv-inline" type="number" min="0" step="0.01" value="${p.inv||0}"
+        title="Editar investimento — salva sozinho"
+        onchange="inlineSaveField(${idx},'inv',this.value)"
+        onkeydown="if(event.key==='Enter')this.blur()" onclick="this.select()"></span></td>
       <td class="tr" style="color:var(--cyan)">${cps>0?fmtR(cps):'—'}</td>
       <td class="tr" style="color:var(--yellow)">—</td>
       <td>${p.link?`<a href="${p.link}" target="_blank" class="lnk">🔗 Ver post</a>`:'—'}</td>
