@@ -205,7 +205,8 @@
 </header>
 
 <div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('imp',this)">🚀 Impulsionados + Seguidores</button>
+  <button class="tab-btn active" onclick="switchBrand('pati',this)">🚀 Pati · Seguidores</button>
+  <button class="tab-btn" onclick="switchBrand('abroader',this)">🌎 Abroader · Seguidores</button>
   <button class="tab-btn" onclick="switchTab('org',this)">🌱 Orgânico</button>
   <button class="tab-btn" onclick="switchTab('ebook',this)">📘 Ebook</button>
 </div>
@@ -214,7 +215,7 @@
 <div id="panel-imp" class="tab-panel active">
 <div class="container">
 
-  <p class="sec-title">Resultados da Campanha · Acompanhamento Diário</p>
+  <p class="sec-title">Resultados da Campanha · <span id="imp-brand-ttl">Patrícia</span> · Acompanhamento Diário</p>
   <div class="kpi-row">
     <div class="kpi k-orange"><p class="kpi-lbl">Investimento</p><p class="kpi-val co" id="d-invest">—</p><p class="kpi-note" id="d-period">período selecionado</p></div>
     <div class="kpi k-purple"><p class="kpi-lbl">Novos Seguidores</p><p class="kpi-val cv" id="d-seg">—</p><p class="kpi-note">total do período</p></div>
@@ -506,6 +507,12 @@ const SHEET_ID      = '1U0-RxvDoIbCI7UNC76hXsRfryNV-Y3GX0x-44KxdVFk';
 const DAILY_SHEET_ID= '1FqaWfL76VcYKeYGVbqO7qwi3EUqwj7YaLEL23Dlqgd8';
 const GVT  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 const GVT2 = `https://docs.google.com/spreadsheets/d/${DAILY_SHEET_ID}/gviz/tq?tqx=out:csv`;
+// ── Marca ativa na aba de Seguidores (Pati e Abroader dividem o mesmo painel) ──
+let BRAND='pati';
+const BRANDS={
+  pati:    {tab:'Dados',    profile:'pati',     key:'pati_posts_v1',     label:'Patrícia'},
+  abroader:{tab:'Abroader', profile:'abroader', key:'abroader_posts_v1', label:'Abroader'},
+};
 const C = {cyan:'#00c6ff',green:'#00e5a0',yellow:'#ffd166',red:'#ff6b6b',purple:'#a78bfa',orange:'#f97316',pink:'#f472b6',blue:'#60a5fa',grid:'rgba(30,48,69,0.7)'};
 const PAL = [C.purple,C.cyan,C.green,C.orange,C.pink,C.yellow,C.blue,'#818cf8','#34d399','#fb923c'];
 const ch={};
@@ -526,6 +533,24 @@ function switchTab(n,b){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
   R('panel-'+n).classList.add('active'); b.classList.add('active');
+}
+// Pati e Abroader usam o MESMO painel de Seguidores; a marca só troca a fonte
+// (aba da planilha + perfil de posts no Sinapse) e re-renderiza do zero.
+function switchBrand(brand,btn){
+  BRAND=brand; POSTS_PROFILE=BRANDS[brand].profile; POSTS_KEY=BRANDS[brand].key;
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  R('panel-imp').classList.add('active'); btn.classList.add('active');
+  const t=R('imp-brand-ttl'); if(t) t.textContent=BRANDS[brand].label;
+  _sheetPosts=null; _allDailyRows=[]; _dfStart=_dfEnd=null;
+  const s=R('df-start'),e=R('df-end'),c=R('df-clear'); if(s)s.value='';if(e)e.value='';if(c)c.style.display='none';
+  loadDailyBrand(); loadSheetPosts();
+}
+async function loadDailyBrand(){
+  try{
+    const r=await fetch(`${GVT2}&sheet=${encodeURIComponent(BRANDS[BRAND].tab)}&_=${Date.now()}`,{cache:'no-cache'});
+    renderImp(parseCSV(await r.text()));
+  }catch(e){ console.error('daily brand',e); if(R('d-tbody'))R('d-tbody').innerHTML=''; }
 }
 function csvLine(l){const r=[];let c='',q=false;for(const x of l){if(x==='"'){q=!q;}else if(x===','&&!q){r.push(c);c='';}else c+=x;}r.push(c);return r;}
 function parseCSV(txt){
@@ -690,9 +715,9 @@ window.clearDailyRange=function(){
 
 // ── Parser aba Pati → filtra linhas Verdadeiro com link Instagram ──
 // ── POSTS (localStorage) ──────────────────────────────────────
-const POSTS_KEY = 'pati_posts_v1';
+let POSTS_KEY = 'pati_posts_v1';
 const POSTS_API = 'https://sinapse.cardomarketing.com.br/api/hire-posts';  // servidor (Postgres, fonte única)
-const POSTS_PROFILE = 'pati';
+let POSTS_PROFILE = 'pati';
 let _sheetPosts = null;
 const DEFAULT_POSTS = [
   {nome:'CARROSSEL - Renda extra que eu faria essa semana, se eu nao estivesse num retiro no pais de gales - vagas - CTA SRI', link:'https://www.instagram.com/p/DVCSqL8EQdr/?igsh=c2ttN3pmM2ZxcW95', inv:1308.69, saldo:1555, dia:25, status:'ativo', obs:''},
@@ -706,8 +731,8 @@ const DEFAULT_POSTS = [
 
 function getPosts(){
   if(_sheetPosts && _sheetPosts.length) return _sheetPosts;
-  try{ const s=localStorage.getItem(POSTS_KEY); return s?JSON.parse(s):[...DEFAULT_POSTS]; }
-  catch(e){ return[...DEFAULT_POSTS]; }
+  try{ const s=localStorage.getItem(POSTS_KEY); if(s) return JSON.parse(s); }catch(e){}
+  return BRAND==='pati' ? [...DEFAULT_POSTS] : [];   // Abroader começa vazia até o Sinapse ter dados
 }
 function setPosts(posts){ localStorage.setItem(POSTS_KEY,JSON.stringify(posts)); }
 // Edição inline DIRETO na tabela (sem abrir o modal): seguidores (saldo) e
