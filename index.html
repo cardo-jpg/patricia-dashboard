@@ -131,6 +131,7 @@
     .pill-ativo{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(0,229,160,.12);color:var(--green);cursor:pointer;user-select:none;border:1px solid rgba(0,229,160,.25);}
     .pill-inativo{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(255,107,107,.1);color:var(--red);cursor:pointer;user-select:none;border:1px solid rgba(255,107,107,.2);}
     .pill-subir{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(255,209,102,.12);color:var(--yellow);cursor:pointer;user-select:none;border:1px solid rgba(255,209,102,.25);}
+    .pill-reserva{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(0,198,255,.12);color:#00c6ff;cursor:pointer;user-select:none;border:1px solid rgba(0,198,255,.28);}
     .modal-sep{border:none;border-top:1px solid var(--border);margin:20px 0 16px;}
     .modal-sub{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;}
     .pfilter{display:inline-flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:3px;}
@@ -139,6 +140,8 @@
     .pfilter button.on{background:rgba(167,139,250,.18);color:#a78bfa;}
     .pfilter button.on[data-f="ativo"]{background:rgba(0,229,160,.14);color:var(--green);}
     .pfilter button.on[data-f="inativo"]{background:rgba(255,107,107,.14);color:var(--red);}
+    .pfilter button.on[data-f="subir"]{background:rgba(255,209,102,.16);color:var(--yellow);}
+    .pfilter button.on[data-f="reserva"]{background:rgba(0,198,255,.16);color:#00c6ff;}
     .pf-empty{text-align:center;color:var(--sub);font-size:12px;padding:22px;}
     .ebd-inp{background:#141c28;border:1px solid var(--border);color:#f0f4f8;border-radius:8px;padding:5px 9px;font-family:inherit;font-size:12px;color-scheme:dark;}
     .ebd-apply{background:rgba(0,198,255,.1);border:1px solid rgba(0,198,255,.35);color:#00c6ff;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
@@ -256,6 +259,7 @@
           <button data-f="ativo" class="on" onclick="setPostFilter('ativo')">Ativos <span id="pf-c-ativo"></span></button>
           <button data-f="inativo" onclick="setPostFilter('inativo')">Inativos <span id="pf-c-inativo"></span></button>
           <button data-f="subir" onclick="setPostFilter('subir')">Subir <span id="pf-c-subir"></span></button>
+          <button data-f="reserva" onclick="setPostFilter('reserva')">Reserva <span id="pf-c-reserva"></span></button>
         </div>
         <button class="btn-edit-posts" onclick="openPostsModal()">✏️ Gerenciar posts</button>
       </div>
@@ -486,6 +490,7 @@
         <option value="ativo">Ativo</option>
         <option value="inativo">Inativo</option>
         <option value="subir">Subir</option>
+        <option value="reserva">Reserva</option>
       </select>
     </div>
     <div class="form-row">
@@ -842,7 +847,7 @@ function renderPostList(){
 }
 
 function draftToggle(i){
-  const cycle={ativo:'inativo',inativo:'subir',subir:'ativo'};
+  const cycle={ativo:'inativo',inativo:'subir',subir:'reserva',reserva:'ativo'};
   _draft[i].status=cycle[_draft[i].status||'ativo']||'ativo';
   renderPostList();
   autoSave();
@@ -852,6 +857,7 @@ function statusPillHtml(status,clickable,idx){
     ativo: ['pill-ativo','Ativo'],
     inativo: ['pill-inativo','Inativo'],
     subir: ['pill-subir','📤 Subir'],
+    reserva: ['pill-reserva','🗂️ Reserva'],
   };
   const[cls,label]=map[status||'ativo']||map['ativo'];
   const style='cursor:default;font-size:9px;padding:1px 7px;';
@@ -905,9 +911,9 @@ function renderPostsTable(){
   const all=getPosts();
   const st=p=>(p.status||'ativo');
   // contadores em cada botão
-  const cnt={todos:all.length,ativo:0,inativo:0,subir:0};
+  const cnt={todos:all.length,ativo:0,inativo:0,subir:0,reserva:0};
   all.forEach(p=>{ const s=st(p); if(cnt[s]!==undefined) cnt[s]++; });
-  ['todos','ativo','inativo','subir'].forEach(k=>{ const el=document.getElementById('pf-c-'+k); if(el) el.textContent='('+cnt[k]+')'; });
+  ['todos','ativo','inativo','subir','reserva'].forEach(k=>{ const el=document.getElementById('pf-c-'+k); if(el) el.textContent='('+cnt[k]+')'; });
   // preserva o índice no array COMPLETO (getPosts) — é ele que o inlineSaveField usa
   const posts = all.map((p,idx)=>({p,idx})).filter(o=> _postFilter==='todos' || st(o.p)===_postFilter);
   if(!posts.length){
